@@ -1,0 +1,69 @@
+﻿<Window x:Class="HABookApp.AddWindowforCredit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HABookApp"
+        mc:Ignorable="d"
+        Title="クレジット利用履歴の追加" Height="250" Width="820" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Background="WhiteSmoke" >
+        <Grid Background="Goldenrod">
+            <Label Content="入力欄" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="18"/>
+            <Label Content="※金額分割入力可：例). 120,100,600" VerticalAlignment="Bottom"  Margin="85, 0, 0, 0" Foreground="White" FontSize="14"/>
+            <Border CornerRadius="6" VerticalAlignment="Center"  Width="60" Margin="10, 0, 80, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                <Button x:Name="AddButton" Content="Add" FontSize="16" FontWeight="ExtraBold" Foreground="#FF057FF9" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" Click="AddButton_Click"/>
+            </Border>
+            <Border CornerRadius="6" VerticalAlignment="Center"  Width="60" Margin="10, 0, 10, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                <Button x:Name="ResetButton" Content="Reset" FontSize="16" FontWeight="ExtraBold" Foreground="Green" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" Click="ResetButton_Click"/>
+            </Border>
+        </Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label x:Name="AddLabel0" Content="　　　" VerticalAlignment="Center"  Margin="10, 0, 0, 0"/>
+            <Label x:Name="AddDate0" Content="日付" VerticalAlignment="Center" Margin="0, 0, 5, 0" Width="120" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+            <Label x:Name="AddItem0"  Content="費目" VerticalAlignment="Center" Width="140" Margin="0, 0, 5, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+            <Label x:Name="AddAmount0" Content="金額[￥]" VerticalAlignment="Center" Width="150" Margin="0, 0, 5, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+            <Label x:Name="AddDetail0" Content="詳細" VerticalAlignment="Center" Width="200" Margin="0, 0, 5, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+            <Label x:Name="AddAccount0" Content="引落とし口座" VerticalAlignment="Center" Margin="0, 0, 5, 0" Width="110" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+            <Label x:Name="AddLabel1" Content="入力１" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
+            <DatePicker x:Name="AddDate1" Text="{Binding NowDate, Mode=OneTime}" VerticalAlignment="Center" Margin="5, 0, 5, 0" Height="24" Width="120" HorizontalContentAlignment="Stretch" HorizontalAlignment="Center"/>
+            <ComboBox x:Name="AddItem1" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+            <TextBox x:Name="AddAmount1" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+            <TextBox x:Name="AddDetail1" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
+            <ComboBox x:Name="AddAccount1" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+            <Label x:Name="AddLabel2" Content="入力２" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
+            <DatePicker x:Name="AddDate2" Text="{Binding NowDate, Mode=OneTime}" VerticalAlignment="Center" Margin="5, 0, 5, 0" Height="24" Width="120" HorizontalContentAlignment="Stretch" HorizontalAlignment="Center"/>
+            <ComboBox x:Name="AddItem2" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+            <TextBox x:Name="AddAmount2" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+            <TextBox x:Name="AddDetail2" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
+            <ComboBox x:Name="AddAccount2" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+            <Label x:Name="AddLabel3" Content="入力３" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
+            <DatePicker x:Name="AddDate3" Text="{Binding NowDate, Mode=OneTime}" VerticalAlignment="Center" Margin="5, 0, 5, 0" Height="24" Width="120" HorizontalContentAlignment="Stretch" HorizontalAlignment="Center"/>
+            <ComboBox x:Name="AddItem3" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+            <TextBox x:Name="AddAmount3" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+            <TextBox x:Name="AddDetail3" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
+            <ComboBox x:Name="AddAccount3" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+            <Label x:Name="AddLabel4" Content="入力４" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
+            <DatePicker x:Name="AddDate4" Text="{Binding NowDate, Mode=OneTime}" VerticalAlignment="Center" Margin="5, 0, 5, 0" Height="24" Width="120" HorizontalContentAlignment="Stretch" HorizontalAlignment="Center"/>
+            <ComboBox x:Name="AddItem4" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+            <TextBox x:Name="AddAmount4" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+            <TextBox x:Name="AddDetail4" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
+            <ComboBox x:Name="AddAccount4" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+            <Label x:Name="AddLabel5" Content="入力５" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
+            <DatePicker x:Name="AddDate5" Text="{Binding NowDate, Mode=OneTime}" VerticalAlignment="Center" Margin="5, 0, 5, 0" Height="24" Width="120" HorizontalContentAlignment="Stretch" HorizontalAlignment="Center"/>
+            <ComboBox x:Name="AddItem5" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+            <TextBox x:Name="AddAmount5" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+            <TextBox x:Name="AddDetail5" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
+            <ComboBox x:Name="AddAccount5" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

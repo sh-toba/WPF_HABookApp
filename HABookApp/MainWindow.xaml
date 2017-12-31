@@ -1,0 +1,474 @@
+﻿<Window x:Class="HABookApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HABookApp"
+        xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Wpf"
+        mc:Ignorable="d"
+        Title="Household Account Book" ShowInTaskbar="True" FontSize="14" Visibility="Visible" Foreground="{x:Null}" Background="SeaShell" d:DesignWidth="900" d:DesignHeight="600" Width="900" Height="600" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+    <StackPanel>
+        <WrapPanel Orientation="Horizontal" Margin="10,5,0,10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="660">
+                <Viewbox Height="40" HorizontalAlignment="Left" Margin="0,0,10,0">
+                    <TextBlock x:Name="textBlock_ManageDate" TextWrapping="Wrap" Text="****年**月 家計簿" Foreground="Black" FontWeight="Bold" TextDecorations="Underline"/>
+                </Viewbox>
+                <Button x:Name="EndofMonthFix" Content="月末Fix" Width="60" VerticalAlignment="Center" Padding="5" IsEnabled="False" Cursor="Hand" Margin="10,0" Click="EndofMonthFix_Click" Background="DarkBlue" Foreground="White" FontWeight="Heavy"/>
+                <Button x:Name="GraphViewButton" Content="Graph" VerticalAlignment="Center" Padding="5" Cursor="Hand" Margin="0,0" Background="DarkBlue" Width="60" Foreground="White" FontWeight="Heavy" Click="GraphViewButton_Click"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Width="200">
+                <Button x:Name="BackupButton" Content="Backup" HorizontalAlignment="Right" Cursor="Hand" Width="70" Click="BackupButton_Click"/>
+                <TextBlock x:Name="IDText" Text="ID : " HorizontalAlignment="Right" Foreground="Black"/>
+            </StackPanel>
+        </WrapPanel>
+        <TabControl x:Name="TabControl" HorizontalAlignment="Center" Height="505" Margin="0,0,0,0" VerticalAlignment="Top" Width="880" SelectionChanged="TabControl_SelectionChanged">
+            <TabItem Header="Main">
+                <StackPanel Background="#FFEBFFE5">
+                    <Grid>
+                        <Viewbox HorizontalAlignment="Left" Height="35" Margin="5, 10" VerticalAlignment="Top" Width="260">
+                            <TextBlock x:Name="textBlock_Main" TextWrapping="Wrap" Text="当月利用状況" Foreground="Black" FontWeight="Bold"/>
+                        </Viewbox>
+                    </Grid>
+                    <WrapPanel>
+                        <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Margin="10, 0, 0, 0">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Background="WhiteSmoke" >
+                                <Grid Background="#FF7BB021">
+                                    <Label Content="元手情報" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="20"/>
+                                </Grid>
+                                <ListView x:Name="MainListView" ItemsSource="{Binding CapitalDataList.Value}" Width="600" Height="120" ScrollViewer.HorizontalScrollBarVisibility="Auto" FontSize="18">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.View>
+                                        <GridView >
+                                            <GridViewColumn Header="元手" Width="100">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding CapName.Value}" TextAlignment="Center" />
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="月初残金[\]" Width="150">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding InitBalance.Value}" TextAlignment="Right"/>
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="現残金[\]" Width="150">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding NowBalance.Value}" TextAlignment="Right" />
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                            <GridViewColumn Header="月末予測[\]" Width="150">
+                                                <GridViewColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding PredictBalance.Value}" TextAlignment="Right" />
+                                                    </DataTemplate>
+                                                </GridViewColumn.CellTemplate>
+                                            </GridViewColumn>
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+                        <StackPanel Background="WhiteSmoke" Margin="0,0">
+                            <StackPanel Orientation="Horizontal" >
+                                <TextBlock Text="総出費額 : " FontSize="22" Margin="10" TextAlignment="Right" Width="110" FontWeight="Bold"/>
+                                <TextBlock x:Name="MainTotalExpense" Text="{Binding TotalExpense.Value, StringFormat={}{0:C}, ConverterCulture=ja-JP}" FontSize="22" Margin="10" TextAlignment="Right" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="収入 : " FontSize="22" Margin="10" TextAlignment="Right" Width="110" FontWeight="Bold"/>
+                                <TextBlock x:Name="MainTotalInput" Text="{Binding TotalIncome.Value, StringFormat={}{0:C}, ConverterCulture=ja-JP}" FontSize="22" Margin="10" TextAlignment="Right" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel x:Name="MainProfitPanel" Orientation="Horizontal" HorizontalAlignment="Right" Background="MistyRose">
+                                <TextBlock Text="利益 : " FontSize="22" Margin="10" TextAlignment="Right" Width="110" FontWeight="Bold"/>
+                                <TextBlock x:Name="MainProfit" Text="{Binding Profit.Value, StringFormat={}{0:C}, ConverterCulture=ja-JP}" FontSize="22" Margin="10" TextAlignment="Right" FontWeight="Bold"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5, 15, 0, 5">
+                        <Viewbox HorizontalAlignment="Left" Height="26" VerticalAlignment="Center" >
+                            <TextBlock TextWrapping="Wrap" Text="出費内訳：" Foreground="Black" FontWeight="Bold"/>
+                        </Viewbox>
+                        <ComboBox x:Name="MainSelectGraph" Margin="10, 0" Width="120" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" ItemsSource="{Binding MainGraphMenu.Value}" DropDownClosed="MainSelectGraph_DropDownClosed"/>
+                    </StackPanel>
+                    <Border BorderBrush="Gray" BorderThickness="2" HorizontalAlignment="Left" Margin="10, 0">
+                        <oxy:Plot Height="200" Width="850">
+                            <oxy:Plot.Axes>
+                                <oxy:CategoryAxis ItemsSource="{Binding BarGraphItems.Value}" LabelField="Label.Value"/>
+                                <oxy:LinearAxis Minimum="0" Maximum="100000" Position="Left"/>
+                            </oxy:Plot.Axes>
+                            <oxy:ColumnSeries ItemsSource="{Binding BarGraphItems.Value}" ValueField="Expense.Value"/>
+                        </oxy:Plot>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Cash">
+                <StackPanel Background="LightCyan">
+                   <Viewbox HorizontalAlignment="Left" Height="35" Margin="5, 10" VerticalAlignment="Top" Width="260">
+                        <TextBlock x:Name="textBlock_Cash" TextWrapping="Wrap" Text="現金支払いの管理" Foreground="Black" FontWeight="Bold"/>
+                    </Viewbox>
+                    <StackPanel Orientation="Horizontal">
+                        <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Left" Margin="5, 0, 0, 0" >
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Background="WhiteSmoke" >
+                                <Grid Background="#FF3076BB">
+                                    <Label Content="入力欄" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="18"/>
+                                    <Label Content="※金額分割入力可：例). 120,100,600" VerticalAlignment="Bottom"  Margin="85, 0, 0, 0" Foreground="White" FontSize="14"/>
+                                    <Border CornerRadius="6" VerticalAlignment="Center"  Width="60" Margin="10, 0, 80, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                        <Button x:Name="InCashAdd" Content="Add" FontSize="16" FontWeight="ExtraBold" Foreground="#FF057FF9" Click="InCashAdd_Click" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}"/>
+                                    </Border>
+                                    <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 10, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                        <Button x:Name="InCashUndo" Content="Undo" FontSize="16" FontWeight="ExtraBold" Foreground="#FFF37F2F" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding CashDataCacheState.Value}" Click="InCashUndo_Click"/>
+                                    </Border>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Label x:Name="InCashLabel0" Content="　　　" VerticalAlignment="Center"  Margin="10, 0, 0, 0"/>
+                                    <Label x:Name="InCashDate0" Content="日付" VerticalAlignment="Center" Margin="10, 0" Width="110" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+                                    <Label x:Name="InCashAmount0" Content="金額[￥]" VerticalAlignment="Center" Width="150" Margin="10, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+                                    <Label x:Name="InCashItem0"  Content="費目" VerticalAlignment="Center" Width="140" Margin="10, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+                                    <Label x:Name="InCashDetail0" Content="詳細" VerticalAlignment="Center" Width="200" Margin="10, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+                                    <Label x:Name="InCashLabel1" Content="入力１" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
+                                    <ComboBox x:Name="InCashDate1" VerticalAlignment="Center" SelectedValue="{Binding NowDate.Value, Mode=OneTime}" ItemsSource="{Binding SelectiveDate.Value}" Margin="10, 0, 10, 0" Height="24" Width="110"/>
+                                    <TextBox x:Name="InCashAmount1" VerticalAlignment="Center" Height="24" Width="150" Margin="10, 0, 10, 0" TextAlignment="Right" LostFocus="InCashAmountInput" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+                                    <ComboBox x:Name="InCashItem1" VerticalAlignment="Center" Height="24" Width="140" Margin="10, 0, 10, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+                                    <TextBox x:Name="InCashDetail1" VerticalAlignment="Center" Height="24" Width="200" Margin="10, 0, 10, 0" TextAlignment="Left"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+                                    <Label x:Name="InCashLabel2" Content="入力２" VerticalAlignment="Center"  Margin="10, 0, 0, 0" FontWeight="Bold"/>
+                                    <ComboBox x:Name="InCashDate2" VerticalAlignment="Center" SelectedValue="{Binding NowDate.Value, Mode=OneTime}" ItemsSource="{Binding SelectiveDate.Value}" Margin="10, 0, 10, 0" Height="24" Width="110"/>
+                                    <TextBox x:Name="InCashAmount2" VerticalAlignment="Center" Height="24" Width="150" Margin="10, 0" TextAlignment="Right" LostFocus="InCashAmountInput" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+                                    <ComboBox x:Name="InCashItem2" VerticalAlignment="Center" Height="24" Width="140" Margin="10, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+                                    <TextBox x:Name="InCashDetail2" VerticalAlignment="Center" Height="24" Width="200" Margin="10, 0" TextAlignment="Left"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+                                    <Label x:Name="InCashLabel3" Content="入力３" VerticalAlignment="Center"  Margin="10, 0, 0, 0" FontWeight="Bold"/>
+                                    <ComboBox x:Name="InCashDate3" VerticalAlignment="Center" SelectedValue="{Binding NowDate.Value, Mode=OneTime}" ItemsSource="{Binding SelectiveDate.Value}" Margin="10, 0, 10, 0" Height="24" Width="110"/>
+                                    <TextBox x:Name="InCashAmount3" VerticalAlignment="Center" Height="24" Width="150" Margin="10, 0" TextAlignment="Right" LostFocus="InCashAmountInput" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+                                    <ComboBox x:Name="InCashItem3" VerticalAlignment="Center" Height="24" Width="140" Margin="10, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+                                    <TextBox x:Name="InCashDetail3" VerticalAlignment="Center" Height="24" Width="200" Margin="10, 0" TextAlignment="Left"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+                                    <Label x:Name="InCashLabel4" Content="入力４" VerticalAlignment="Center"  Margin="10, 0, 0, 0" FontWeight="Bold"/>
+                                    <ComboBox x:Name="InCashDate4" VerticalAlignment="Center" SelectedValue="{Binding NowDate.Value, Mode=OneTime}" ItemsSource="{Binding SelectiveDate.Value}" Margin="10, 0, 10, 0" Height="24" Width="110"/>
+                                    <TextBox x:Name="InCashAmount4" VerticalAlignment="Center" Height="24" Width="150" Margin="10, 0" TextAlignment="Right" LostFocus="InCashAmountInput" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+                                    <ComboBox x:Name="InCashItem4" VerticalAlignment="Center" Height="24" Width="140" Margin="10, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+                                    <TextBox x:Name="InCashDetail4" VerticalAlignment="Center" Height="24" Width="200" Margin="10, 0" TextAlignment="Left"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
+                                    <Label x:Name="InCashLabel5" Content="入力５" VerticalAlignment="Center"  Margin="10, 0, 0, 0" FontWeight="Bold"/>
+                                    <ComboBox x:Name="InCashDate5" VerticalAlignment="Center" SelectedValue="{Binding NowDate.Value, Mode=OneTime}" ItemsSource="{Binding SelectiveDate.Value}" Margin="10, 0, 10, 0" Height="24" Width="110"/>
+                                    <TextBox x:Name="InCashAmount5" VerticalAlignment="Center" Height="24" Width="150" Margin="10, 0" TextAlignment="Right" LostFocus="InCashAmountInput" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+                                    <ComboBox x:Name="InCashItem5" VerticalAlignment="Center" Height="24" Width="140" Margin="10, 0" ItemsSource="{Binding ExpItemList.Value}"/>
+                                    <TextBox x:Name="InCashDetail5" VerticalAlignment="Center" Height="24" Width="200" Margin="10, 0" TextAlignment="Left"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <StackPanel Width="115" Margin="5, 0, 5, 0" HorizontalAlignment="Center">
+                            <Viewbox HorizontalAlignment="Left" Height="30" Margin="0" VerticalAlignment="Top" >
+                                <TextBlock TextWrapping="Wrap" Text="現残金" FontStyle="Italic" Foreground="#FFCA1C1C" FontWeight="Bold" />
+                            </Viewbox>
+                            <Viewbox HorizontalAlignment="Right" Height="30" Margin="0" VerticalAlignment="Top" >
+                                <TextBlock x:Name="InCashNowBalance" TextWrapping="Wrap" Text="\******"  Foreground="Black" FontWeight="Bold" TextDecorations="Underline" />
+                            </Viewbox>
+                            <Viewbox HorizontalAlignment="Center" Height="24" Margin="0, 20, 0, 5" VerticalAlignment="Top" >
+                                <TextBlock TextWrapping="Wrap" Text="check用"  Foreground="#FF3FCB30" FontWeight="Bold" />
+                            </Viewbox>
+                            <Viewbox HorizontalAlignment="Right" Height="20" Margin="0, 0, 0, 5" VerticalAlignment="Top" >
+                                <TextBlock x:Name="InCashNowBalance_Add" TextWrapping="Wrap" Text="Add後 : \******"  Foreground="Black" />
+                            </Viewbox>
+                            <Viewbox HorizontalAlignment="Left" Height="20" Margin="0, 0, 0, 0" VerticalAlignment="Top" >
+                                <TextBlock TextWrapping="Wrap" Text="手動入力"  Foreground="Black" />
+                            </Viewbox>
+                            <TextBox x:Name="InCashManuaBalanceCheck" HorizontalAlignment="Right" Height="20" Width="100" Margin="0,0,0,5" LostFocus="InCashAmountInput" TextAlignment="Right" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
+                            <Viewbox HorizontalAlignment="Right" Height="20" Margin="0, 0, 0, 0" VerticalAlignment="Top" >
+                                <TextBlock x:Name="InCashCheckDifference" TextWrapping="Wrap" Text="差分 : \******"  Foreground="Black" />
+                            </Viewbox>
+                        </StackPanel>
+                    </StackPanel>
+                    <Viewbox HorizontalAlignment="Left" Height="30" Margin="5, 10, 5, 0" VerticalAlignment="Top" Width="260">
+                        <TextBlock TextWrapping="Wrap" Text="履歴" Foreground="Black" FontWeight="Bold"/>
+                    </Viewbox>
+                    <DataGrid x:Name="CashDataView" Margin="5,0" Height="135" ItemsSource="{Binding CashDataView.Value}" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" AutoGeneratingColumn="myDataGrid_AutoGeneratingColumn" IsReadOnly="True">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="{x:Type DataGridColumnHeader}">
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.RowHeaderStyle>
+                            <Style TargetType="{x:Type DataGridRowHeader}">
+                                <Setter Property="Content" Value="{Binding [0]}"/>
+                            </Style>
+                        </DataGrid.RowHeaderStyle>
+                    </DataGrid>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Credit">
+                <StackPanel Background="#FFF6F0BE">
+                    <Grid>
+                        <Viewbox HorizontalAlignment="Left" Height="35" Margin="5, 10" VerticalAlignment="Top" Width="260">
+                            <TextBlock x:Name="textBlock_Credit" TextWrapping="Wrap" Text="クレジット利用の管理" Foreground="Black" FontWeight="Bold"/>
+                        </Viewbox>
+                    </Grid>
+                    <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Background="WhiteSmoke" >
+                            <Grid Background="Goldenrod">
+                                <Label Content="利用履歴" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="18"/>
+                                <Border CornerRadius="6" VerticalAlignment="Center"  Width="60" Margin="10, 0, 150, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                    <Button x:Name="InCreditAdd" Content="Add" FontSize="16" FontWeight="ExtraBold" Foreground="#FF057FF9" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" Click="InCreditAdd_Click"/>
+                                </Border>
+                                <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 80, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                    <Button x:Name="InCreditDelete" Content="Delete" FontSize="16" FontWeight="ExtraBold" Foreground="Red" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" Click="InCreditDelete_Click" />
+                                </Border>
+                                <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 10, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                    <Button x:Name="InCreditUndo" Content="Undo" FontSize="16" FontWeight="ExtraBold" Foreground="#FFF37F2F" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding CreditDataCacheState.Value}" Click="InCreditUndo_Click"/>
+                                </Border>
+                            </Grid>
+                            <ListView x:Name="InCreditListView" ItemsSource="{Binding CreditData.Value}" Width="860" Height="260" ScrollViewer.HorizontalScrollBarVisibility="Auto" >
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView >
+                                        <GridViewColumn Header="管理No." Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Number.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="90" >
+                                            <GridViewColumnHeader Content="利用年月日" Click="CreditDataSort"/>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Date.Value}" TextAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="費目" Width="150">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding ExpItem.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="金額[\]" Width="120">
+                                                <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Amount.Value}" TextAlignment="Right" />
+                                            </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="詳細" Width="200">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Detail.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="引落とし口座" Width="100">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding CapItem.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="支払い確定✓" Width="100">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Path=IsChecked.Value, Mode=TwoWay}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Click="InCreditCheckBox_Click"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" Margin="5, 15, 0, 5">
+                        <Viewbox HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" >
+                            <TextBlock TextWrapping="Wrap" Text="統計情報：口座" Foreground="Black" FontWeight="Bold"/>
+                        </Viewbox>
+                        <ComboBox x:Name="InCreditSelectedAcc" Margin="10, 0" Width="120" VerticalAlignment="Center" FontSize="14" ItemsSource="{Binding AccountList.Value}" FontWeight="Bold" DropDownClosed="InCreditSelectedAcc_DropDownClosed"/>
+                    </StackPanel>
+                    <WrapPanel Height="62" Width="760" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,10,0">
+                        <Border BorderThickness="1" BorderBrush="Black" Background="#FFA8FDA8" Margin="0,0,10,0">
+                            <TextBlock Text="現残高" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="AntiqueWhite">
+                            <TextBlock Text="未支払い総額" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="AntiqueWhite" Margin="0,0,10,0">
+                            <TextBlock Text="支払い確定額" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="#FFA8FDA8" Margin="0,0,10,0">
+                            <TextBlock Text="支払い後残高" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="AntiqueWhite">
+                            <TextBlock Text="今月利用額" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White" Margin="0,0,10,0">
+                            <TextBlock x:Name="InCreditNowbalance" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold"/>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White">
+                            <TextBlock x:Name="InCreditTotalSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White" Margin="0,0,10,0">
+                            <TextBlock x:Name="InCreditConfirmedSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White" Margin="0,0,10,0">
+                            <TextBlock x:Name="InCreditDifference" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White">
+                            <TextBlock x:Name="InCreditMonthSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                    </WrapPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Account">
+                <StackPanel Background="#FFF8E8FF">
+                    <Grid>
+                        <Viewbox HorizontalAlignment="Left" Height="35" Margin="5, 10" VerticalAlignment="Top" Width="260">
+                            <TextBlock x:Name="textBlock_Account" TextWrapping="Wrap" Text="口座利用の管理" Foreground="Black" FontWeight="Bold"/>
+                        </Viewbox>
+                    </Grid>
+                    <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Background="WhiteSmoke" >
+                            <Grid Background="#FFD220DA">
+                                <Label Content="登録内容" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="18"/>
+                                <Border CornerRadius="6" VerticalAlignment="Center"  Width="60" Margin="10, 0, 150, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                    <Button x:Name="InAccountAdd" Content="Add" FontSize="16" FontWeight="ExtraBold" Foreground="#FF057FF9" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" Click="InAccountAdd_Click"/>
+                                </Border>
+                                <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 80, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                    <Button x:Name="InAccountDelete" Content="Delete" FontSize="16" FontWeight="ExtraBold" Foreground="Red" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}"  Click="InAccountDelete_Click"/>
+                                </Border>
+                                <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 10, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                                    <Button x:Name="InAccountUndo" Content="Undo" FontSize="16" FontWeight="ExtraBold" Foreground="#FFF37F2F" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" IsEnabled="{Binding AccountDataCacheState.Value}" Click="InAccountUndo_Click"/>
+                                </Border>
+                            </Grid>
+                            <ListView x:Name="InAccountListView" ItemsSource="{Binding AccountData.Value}" Width="860" Height="260" ScrollViewer.HorizontalScrollBarVisibility="Auto" >
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView >
+                                        <GridViewColumn Header="管理No." Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Number.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="取引" Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding AccInMode.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="100">
+                                            <GridViewColumnHeader Content="日付" Click="AccountDataSort"/>
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Date.Value}" TextAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="口座" Width="100">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Account.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="金額[\]" Width="120">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Amount.Value}" TextAlignment="Right" Foreground="{Binding FontColor.Value}"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="毎月✓" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Path=FixFlag.Value, Mode=TwoWay}" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Click="InAccountCheckBox_Click"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="(備考)" Width="160">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Remarks.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="(費目)" Width="150">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding ExpItem.Value}" TextAlignment="Center" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" Margin="5, 15, 0, 5">
+                        <Viewbox HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" >
+                            <TextBlock TextWrapping="Wrap" Text="統計情報：元手" Foreground="Black" FontWeight="Bold"/>
+                        </Viewbox>
+                        <ComboBox x:Name="InAccountSelectedAcc" Margin="10, 0" Width="120" VerticalAlignment="Center" FontSize="14" ItemsSource="{Binding CapItemList.Value}" FontWeight="Bold" DropDownClosed="InAccountSelectedAcc_DropDownClosed"/>
+                    </StackPanel>
+                    <WrapPanel Height="62" Width="760" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,10,0">
+                        <Border BorderThickness="1" BorderBrush="Black" Background="#FFA8FDA8" Margin="0,0,10,0">
+                            <TextBlock Text="現残高" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="AntiqueWhite">
+                            <TextBlock Text="月振替総額" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="AntiqueWhite" Margin="0,0,10,0">
+                            <TextBlock Text="未支払い額" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="#FFA8FDA8" Margin="0,0,10,0">
+                            <TextBlock Text="支払い後残高" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="#FFD7EDFA">
+                            <TextBlock Text="月入金額" Height="28" Width="140" TextAlignment="Center" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White" Margin="0,0,10,0">
+                            <TextBlock x:Name="InAccountNowbalance" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold"/>
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White">
+                            <TextBlock x:Name="InAccountTotalSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White" Margin="0,0,10,0">
+                            <TextBlock x:Name="InAccountNoPaidSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White" Margin="0,0,10,0">
+                            <TextBlock x:Name="InAccountDifference" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                        <Border BorderThickness="1" BorderBrush="Black" Background="White">
+                            <TextBlock x:Name="InAccountInputSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
+                        </Border>
+                    </WrapPanel>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </StackPanel>
+</Window>
