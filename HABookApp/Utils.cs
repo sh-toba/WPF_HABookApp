@@ -407,6 +407,7 @@ namespace MyUtils
             NOTMATCH, // パスワード不一致
             NOREISTERED, // 未登録
             INVALID, // ワークスペースにアクセス中
+            DIRECTORY_NOT_FOUND, // フォルダが見つからない
             DEFAULT, // 未操作状態
         }
 
@@ -558,6 +559,11 @@ namespace MyUtils
                 if (pass == register_pass)
                 {
                     uinfo = new UserInfo(id, userslist[id][0], userslist[id][1]);
+                    if (!Directory.Exists(uinfo.DIR))
+                    {
+                        LoginState = STATE.DIRECTORY_NOT_FOUND;
+                        return;
+                    }
                     loginLock = new ExclusionCtlr(uinfo.DIR);
                     if (!loginLock.Lock())
                     {

@@ -368,6 +368,24 @@ namespace HABookApp
 
         private const bool MODE_DEVELOP = false;
 
+        public enum ERROR_STATE
+        {
+            DEFAULT,
+            ERROR_READING_INITFILE_FAILED,
+            ERROR_READING_CASHDATA_FAILED,
+            ERROR_READING_CREDITDATA_FAILED,
+            ERROR_READING_ACCOUNTDATA_FAILED,
+            ERROR_READING_XLSXFILE_FAILED,
+            ERROR_SAVING_INITFILE_FAILED,
+            ERROR_SAVING_CASHDATA_FAILED,
+            ERROR_SAVING_CREDITDATA_FAILED,
+            ERROR_SAVING_ACCOUNTDATA_FAILED,
+            ERROR_SAVING_XLSXFILE_FAILED,
+            ERROR_DIRECTORY_NOT_FOUND
+        }
+        public ERROR_STATE EState { get; private set; } = ERROR_STATE.DEFAULT; 
+
+
         /// <summary>
         /// クラス定義値
         /// </summary>
@@ -473,6 +491,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_READING_INITFILE_FAILED;
                 return false;
             }
         }
@@ -498,6 +517,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_SAVING_INITFILE_FAILED;
                 return false;
             }
         }
@@ -596,6 +616,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_READING_CASHDATA_FAILED;
                 return;
             }
             CashSumUpdate(); // 利用総額の更新
@@ -620,6 +641,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_SAVING_CASHDATA_FAILED;
                 return;
             }
             CashSumUpdate(); // 利用総額の更新
@@ -741,6 +763,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_READING_CREDITDATA_FAILED;
                 return;
             }
             CreditSumUpdate(); // 利用総額の更新
@@ -765,6 +788,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_SAVING_CREDITDATA_FAILED;
                 return;
             }
             CreditSumUpdate(); // 利用総額の更新
@@ -1030,6 +1054,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_READING_ACCOUNTDATA_FAILED;
                 return;
             }
             AccountSumUpdate(); // 利用総額の更新
@@ -1055,6 +1080,7 @@ namespace HABookApp
             {
                 // ファイルを開くのに失敗したとき
                 DMLog.Write("-----ERROR-----" + e.Message);
+                EState = ERROR_STATE.ERROR_READING_ACCOUNTDATA_FAILED;
                 return;
             }
             AccountSumUpdate(); // 利用総額の更新
@@ -1682,6 +1708,11 @@ namespace HABookApp
             bool ret_b;
 
             PATH_USERS_ROOT = @root_dir_path;
+            if (!Directory.Exists(PATH_USERS_ROOT))
+            {
+                EState = ERROR_STATE.ERROR_DIRECTORY_NOT_FOUND;
+                return false;
+            }
 
             // 出力先パスの設定
             PATH_SAVE = PATH_USERS_ROOT + PATH_SAVE;

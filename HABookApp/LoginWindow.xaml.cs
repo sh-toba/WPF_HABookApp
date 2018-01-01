@@ -97,6 +97,9 @@ namespace HABookApp
                 case MyUtils.LoginManage.STATE.INVALID:
                     MessageBox.Show("他ユーザがアクセス中です。", MWin.TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
+                case MyUtils.LoginManage.STATE.DIRECTORY_NOT_FOUND:
+                    MessageBox.Show("フォルダが見つかりません。", MWin.TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
+                    return false;
                 default:
                     return false;
             }
