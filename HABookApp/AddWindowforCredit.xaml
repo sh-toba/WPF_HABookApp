@@ -23,7 +23,7 @@
             <Label x:Name="AddItem0"  Content="費目" VerticalAlignment="Center" Width="140" Margin="0, 0, 5, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
             <Label x:Name="AddAmount0" Content="金額[￥]" VerticalAlignment="Center" Width="150" Margin="0, 0, 5, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
             <Label x:Name="AddDetail0" Content="詳細" VerticalAlignment="Center" Width="200" Margin="0, 0, 5, 0" HorizontalContentAlignment="Center" FontWeight="Bold"/>
-            <Label x:Name="AddAccount0" Content="引落とし口座" VerticalAlignment="Center" Margin="0, 0, 5, 0" Width="110" HorizontalContentAlignment="Center" FontWeight="Bold"/>
+            <Label x:Name="AddAccount0" Content="カード種" VerticalAlignment="Center" Margin="0, 0, 5, 0" Width="110" HorizontalContentAlignment="Center" FontWeight="Bold"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
             <Label x:Name="AddLabel1" Content="入力１" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
@@ -31,7 +31,7 @@
             <ComboBox x:Name="AddItem1" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
             <TextBox x:Name="AddAmount1" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
             <TextBox x:Name="AddDetail1" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
-            <ComboBox x:Name="AddAccount1" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+            <ComboBox x:Name="AddCard1" VerticalAlignment="Center" ItemsSource="{Binding CardList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
             <Label x:Name="AddLabel2" Content="入力２" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
@@ -39,7 +39,7 @@
             <ComboBox x:Name="AddItem2" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
             <TextBox x:Name="AddAmount2" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
             <TextBox x:Name="AddDetail2" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
-            <ComboBox x:Name="AddAccount2" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+            <ComboBox x:Name="AddCard2" VerticalAlignment="Center" ItemsSource="{Binding CardList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
             <Label x:Name="AddLabel3" Content="入力３" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
@@ -47,7 +47,7 @@
             <ComboBox x:Name="AddItem3" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
             <TextBox x:Name="AddAmount3" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
             <TextBox x:Name="AddDetail3" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
-            <ComboBox x:Name="AddAccount3" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+            <ComboBox x:Name="AddCard3" VerticalAlignment="Center" ItemsSource="{Binding CardList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
             <Label x:Name="AddLabel4" Content="入力４" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
@@ -55,7 +55,7 @@
             <ComboBox x:Name="AddItem4" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
             <TextBox x:Name="AddAmount4" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
             <TextBox x:Name="AddDetail4" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
-            <ComboBox x:Name="AddAccount4" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+            <ComboBox x:Name="AddCard4" VerticalAlignment="Center" ItemsSource="{Binding CardList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 5">
             <Label x:Name="AddLabel5" Content="入力５" VerticalAlignment="Center" Margin="10, 0, 0, 0" FontWeight="Bold"/>
@@ -63,7 +63,7 @@
             <ComboBox x:Name="AddItem5" VerticalAlignment="Center" Height="24" Width="140" Margin="0, 0, 5, 0" ItemsSource="{Binding ExpItemList.Value}"/>
             <TextBox x:Name="AddAmount5" VerticalAlignment="Center" Height="24" Width="150" Margin="0, 0, 5, 0" TextAlignment="Right" LostFocus="AddAmountCheck" InputMethod.PreferredImeState="On" InputMethod.PreferredImeConversionMode="Alphanumeric"/>
             <TextBox x:Name="AddDetail5" VerticalAlignment="Center" Height="24" Width="200" Margin="0, 0, 5, 0" TextAlignment="Left"/>
-            <ComboBox x:Name="AddAccount5" VerticalAlignment="Center" ItemsSource="{Binding AccountList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
+            <ComboBox x:Name="AddCard5" VerticalAlignment="Center" ItemsSource="{Binding CardList.Value}" Margin="0, 0, 5, 0" Height="24" Width="110"/>
         </StackPanel>
     </StackPanel>
 </Window>

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace HABookApp
 {
@@ -34,8 +35,19 @@ namespace HABookApp
 
         private void RegistButton_Click(object sender, RoutedEventArgs e)
         {
-            var SetWindow = new UserSetting("add", MWin);
-            SetWindow.ShowDialog();
+
+            var dlg = new CommonOpenFileDialog("フォルダを選択してください");
+            // フォルダ選択モード。
+            dlg.IsFolderPicker = true;
+            var ret = dlg.ShowDialog();
+            if (ret == CommonFileDialogResult.Ok)
+            {
+                var SetWindow = new UserSetting("add", MWin, dlg.FileName + "\\");
+                SetWindow.ShowDialog();
+
+                LoginID.ItemsSource = MWin.LM.GetUsers();
+            }
+
             return;
         }
 
@@ -60,7 +72,7 @@ namespace HABookApp
         {
             if(LoginEvent())
             {
-                var SetWindow = new UserSetting("change", MWin);
+                var SetWindow = new UserSetting("change", MWin, MWin.LM.GetDIR());
                 SetWindow.ShowDialog();
             }
             return;

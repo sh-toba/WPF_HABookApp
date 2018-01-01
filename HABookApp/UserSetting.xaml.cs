@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using Microsoft.WindowsAPICodePack.Dialogs;
+
 
 namespace HABookApp
 {
@@ -22,23 +22,27 @@ namespace HABookApp
     {
 
         MainWindow MWin;
+        UserSettingViewModel USVM = new UserSettingViewModel();
         public string MODE;
 
-        public UserSetting(string mode, MainWindow mwin)
+        public UserSetting(string mode, MainWindow mwin, string path)
         {
             InitializeComponent();
+            SetDIR.Text = path;
+            USVM.Init(path);
 
             this.MWin = mwin;
             this.MODE = mode;
 
-            if(MODE == "change")
+            if (MODE == "change")
             {
                 SetID.Text = MWin.LM.GetID();
                 SetPASS.Password = MWin.LM.GetPASS();
                 SetPASS2.Password = MWin.LM.GetPASS();
-                SetDIR.Text = MWin.LM.GetDIR();
                 SetButton.Content = " 変更 ";
             }
+
+            this.DataContext = USVM;
         }
 
         private void SetButton_Click(object sender, RoutedEventArgs e)
@@ -65,7 +69,14 @@ namespace HABookApp
                         if (!MWin.LM.AddUser(id, pass, dir))
                             MessageBox.Show("AddUser is Failed", MWin.TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
                         else
-                            this.Close();
+                        {
+                            int ret_val = USVM.DataManagementReflection();
+                            switch (ret_val) {
+                                case 0:
+                                    this.Close();
+                                    break;
+                            }
+                        }
                     }
                 }else if (MODE == "change"){
                     if (!MWin.LM.ChangeUsersInfo(MWin.LM.GetID(), id, pass, dir))
@@ -78,14 +89,6 @@ namespace HABookApp
 
         private void FolderSelect_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new CommonOpenFileDialog("フォルダ選択");
-            // フォルダ選択モード。
-            dlg.IsFolderPicker = true;
-            var ret = dlg.ShowDialog();
-            if (ret == CommonFileDialogResult.Ok)
-            {
-                this.SetDIR.Text = dlg.FileName + "\\";
-            }
         }
 
         private bool CheckTextBlank(string text)

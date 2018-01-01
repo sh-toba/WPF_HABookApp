@@ -44,25 +44,24 @@ namespace HABookApp
         public string ExpItem { get; } // 費目
         public int Amount { get; } // 金額
         public string Detail { get; } // 詳細
-        public string CapItem { get; } // 元手
+        public string CardName { get; } // カード名
         public string PayDate { get; set; } = "nofixed"; //支払い年月
         // コンストラクタ①
-        public InCreditData(string date, string eitem, int amount, string detail, string citem)
+        public InCreditData(string date, string eitem, int amount, string detail, string cname)
         {
             this.Date = date;
             this.ExpItem = eitem;
             this.Amount = amount;
             this.Detail = detail;
-            this.CapItem = citem;
+            this.CardName = cname;
         }
-        // コンストラクタ②
-        public InCreditData(string date, string eitem, int amount, string detail, string citem, string paydate)
+        public InCreditData(string date, string eitem, int amount, string detail, string cname, string paydate)
         {
             this.Date = date;
             this.ExpItem = eitem;
             this.Amount = amount;
             this.Detail = detail;
-            this.CapItem = citem;
+            this.CardName = cname;
             this.PayDate = paydate;
         }
         // コンストラクタ③
@@ -73,18 +72,18 @@ namespace HABookApp
             this.ExpItem = words[1];
             this.Amount = int.Parse(words[2]);
             this.Detail = words[3];
-            this.CapItem = words[4];
+            this.CardName = words[4];
             this.PayDate = words[5];
         }
         // 文字列に変換
         public string StringConv()
         {
-            return Date + DIVC + ExpItem + DIVC + Amount.ToString() + DIVC + Detail + DIVC + CapItem + DIVC + PayDate;
+            return Date + DIVC + ExpItem + DIVC + Amount.ToString() + DIVC + Detail + DIVC + CardName + DIVC + PayDate;
         }
         // 文字列に変換
         public string StringConv2()
         {
-            return Date + DIVC + ExpItem + DIVC + Amount.ToString() + DIVC + Detail + DIVC + CapItem;
+            return Date + DIVC + ExpItem + DIVC + Amount.ToString() + DIVC + Detail + DIVC + CardName;
         }
     }
 
@@ -391,7 +390,7 @@ namespace HABookApp
 
         // 動作記録用
         MyUtils.Logger DMLog; // ログ用クラス
-        
+
 
         /// <summary>
         /// ①初期設定項目の管理
@@ -401,11 +400,15 @@ namespace HABookApp
         public List<string> CapItemList { get; private set; } = new List<string>(); // 元手リスト(現金、貯金口座、預金口座、など)
         public Dictionary<string, int> InitBalance { get; private set; } = new Dictionary<string, int>(); // 元手リストごとの初期値
         public List<string> AccInputItem { get; private set; } = new List<string> { "振替", "引落", "預入", "入金" }; // 口座管理データ入力項目
-        private Dictionary<string, string> CreditPayDay = new Dictionary<string, string>(); // 支払い予定日
+        public Dictionary<string, List<string>> CreditInformation = new Dictionary<string, List<string>>(); // クレジット情報{カード名, {引落先, 引落日}}
+        public List<string> GetCardList() { return new List<string>(CreditInformation.Keys); }
+        private static char[] DIVCHAR_CI = new char[] { ':', ',', '|' };
+
         // 操作
         public string StartDate { get; set; } // 運用開始年月
         public string ManageDate { get; set; } // 管理中の年月
-        public string LatestDate { get; set; } // 最終更新時刻
+        public string LatestDate { get; private set; } // 最終更新時刻
+        private void UpdateLatest() { LatestDate = DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss"); SaveInitFile(); }
         public DateTime bootDate { get; } = DateTime.Today; // DataManegementのインスタンス生成時刻
         public List<string> SelectiveDate; // 管理月中の日付一覧
 
@@ -435,33 +438,26 @@ namespace HABookApp
                     while ((line = rfile.ReadLine()) != null)
                     {
                         line_no++;
-                        string[] words = line.Split(',');
                         switch (line_no)
                         {
                             case 1:
-                                for (int i = 0; i < words.Length; i++) ExpItemList.Add(words[i]);
+                                ExpItemList = MyUtils.MyMethods.StrLineToList(line, DIVCHAR_CI[0]);
                                 break;
                             case 2:
-                                for (int count = 0; count < words.Length; count += 2)
-                                {
-                                    CapItemList.Add(words[count]);
-                                    InitBalance.Add(words[count], int.Parse(words[count + 1]));
-                                }
+                                InitBalance = MyUtils.MyMethods.StrLineToDictionaryInt(line, DIVCHAR_CI[1], DIVCHAR_CI[0]);
+                                CapItemList = new List<string>(InitBalance.Keys);
                                 break;
                             case 3:
-                                StartDate = words[0];
+                                StartDate = line;
                                 break;
                             case 4:
-                                ManageDate = words[0];
+                                ManageDate = line;
                                 break;
                             case 5:
-                                LatestDate = words[0];
+                                LatestDate = line;
                                 break;
                             case 6:
-                                for (int count = 0; count < words.Length; count += 2)
-                                {
-                                    CreditPayDay.Add(words[count], words[count + 1]);
-                                }
+                                CreditInformation = MyUtils.MyMethods.StrLineToDictionaryList(line, DIVCHAR_CI);
                                 break;
                             case 7:
                                 break;
@@ -485,17 +481,16 @@ namespace HABookApp
         {
             string fname = PATH_USERS_ROOT + INITFILE;
             DMLog.WriteWithMethod(" << " + fname);
-            char divc = ',';
             try
             {
                 using (StreamWriter wfile = new StreamWriter(fname, false, Encoding.GetEncoding("Shift_JIS")))
                 {
-                    wfile.WriteLine(MyUtils.MyMethods.ListToStrLine(ExpItemList, divc));
-                    wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(InitBalance, divc, divc));
+                    wfile.WriteLine(MyUtils.MyMethods.ListToStrLine(ExpItemList, DIVCHAR_CI[0]));
+                    wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(InitBalance, DIVCHAR_CI[0], DIVCHAR_CI[1]));
                     wfile.WriteLine(StartDate);
                     wfile.WriteLine(ManageDate);
                     wfile.WriteLine(LatestDate);
-                    wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(CreditPayDay, divc, divc));
+                    wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(CreditInformation, DIVCHAR_CI));
                 }
                 return true;
             }
@@ -506,6 +501,16 @@ namespace HABookApp
                 return false;
             }
         }
+
+        // 設定ファイルを外部から更新
+        public void UpdateSetting(List<string> explist, Dictionary<string, int> initbal, Dictionary<string, List<string>> cinfo)
+        {
+            ExpItemList = new List<string>(explist);
+            InitBalance = new Dictionary<string, int>(initbal);
+            CreditInformation = new Dictionary<string, List<string>>(cinfo);
+            UpdateLatest();
+        }
+
 
         /// <summary>
         /// ②現金利用履歴の管理
@@ -548,13 +553,13 @@ namespace HABookApp
         // 現金利用履歴を読み取り
         private void ReadCashLog()
         {
+
             // 保存先のデータを初期化
             CashData = new Dictionary<string, Dictionary<string, int>>();
             CashDataDetail = new Dictionary<string, string>();
   
             // オブジェクト設定
             string fname = PATH_SAVE + CASHLOG;
-            Dictionary<int, string> items = new Dictionary<int, string>();
             Dictionary<string, int> tmpDict;
 
             // ログ取得
@@ -564,36 +569,26 @@ namespace HABookApp
                 using (StreamReader rfile = new StreamReader(fname, Encoding.GetEncoding("Shift_JIS")))
                 {
                     string line = "", date_str, detail;
-                    int line_count = 0;
                     while ((line = rfile.ReadLine()) != null)
                     {
                         string[] words = line.Split(DIVCHAR);
-                        line_count++;
-                        if (line_count == 1)　// １行目は費目
-                        {
-                            for (int wl = 0; wl < words.Length; wl++)
-                            {
-                                items.Add(wl, words[wl]);
-                            }
-                        }
-                        else
-                        {
-                            tmpDict = new Dictionary<string, int>();
-                            date_str = words[0]; // 最初の項目は日付
-                            for (int wl = 1; wl < words.Length-1; wl++)
-                            {
-                                if(words[wl]!="null")
-                                    tmpDict.Add(items[wl-1], int.Parse(words[wl]));
-                            }
-                            if (words[words.Length - 1] != "null")
-                                detail = words[words.Length - 1];
-                            else
-                                detail = "";
 
-                            // データに追加
-                            CashData.Add(date_str, tmpDict);
-                            CashDataDetail.Add(date_str, detail);
+                        tmpDict = new Dictionary<string, int>();
+                        date_str = words[0]; // 最初の項目は日付
+                        for (int wl = 1; wl < words.Length - 1; wl++)
+                        {
+                            if (words[wl] != "null")
+                                tmpDict.Add(ExpItemList[wl - 1], int.Parse(words[wl]));
                         }
+                        if (words[words.Length - 1] != "null")
+                            detail = words[words.Length - 1];
+                        else
+                            detail = "";
+
+                        // データに追加
+                        CashData.Add(date_str, tmpDict);
+                        CashDataDetail.Add(date_str, detail);
+
                     }
                 }
             }
@@ -617,7 +612,6 @@ namespace HABookApp
             {
                 using (StreamWriter wfile = new StreamWriter(fname, false, Encoding.GetEncoding("Shift_JIS")))
                 {
-                    wfile.WriteLine(MyUtils.MyMethods.ListToStrLine(ExpItemList, DIVCHAR));
                     foreach (string date in CashData.Keys)
                         wfile.WriteLine(StrConvCashData(date));
                 }
@@ -629,6 +623,7 @@ namespace HABookApp
                 return;
             }
             CashSumUpdate(); // 利用総額の更新
+            UpdateLatest();
             return;
         }
         // 任意の月のCashDataを削除
@@ -721,8 +716,8 @@ namespace HABookApp
         public void SetCreditData(List<InCreditData> data) { CreditData = new List<InCreditData>(data); SaveCreditLog(); return; }
 
         private Dictionary<string, int> CreditSumItem; // 管理月利用額：key=費目
-        private Dictionary<string, int> CreditSumConfirm; // 支払い確定総額：key=元手
-        private Dictionary<string, int> CreditSumAll; // クレジット利用総額：key=元手
+        private Dictionary<string, int> CreditSumConfirm; // 支払い確定総額：key=カード種
+        private Dictionary<string, int> CreditSumAll; // クレジット利用総額：key=カード種
 
         // クレジット利用履歴を読み取る
         private void ReadCreditLog()
@@ -773,6 +768,7 @@ namespace HABookApp
                 return;
             }
             CreditSumUpdate(); // 利用総額の更新
+            UpdateLatest();
             return;
         }
         
@@ -790,20 +786,17 @@ namespace HABookApp
             // 初期化処理
             CreditSumAll = new Dictionary<string, int>();
             CreditSumConfirm = new Dictionary<string, int>();
-            foreach (string key in CapItemList)
+            foreach (string key in CreditInformation.Keys)
             {
-                if (key != "現金")
-                {
-                    CreditSumAll.Add(key, 0);
-                    CreditSumConfirm.Add(key, 0);
-                }
+                CreditSumAll.Add(key, 0);
+                CreditSumConfirm.Add(key, 0);
             }
             // 合計値の計算
             foreach (InCreditData data in CreditData)
             {
-                CreditSumAll[data.CapItem] += data.Amount;
+                CreditSumAll[data.CardName] += data.Amount;
                 if (data.PayDate == ManageDate)
-                    CreditSumConfirm[data.CapItem] += data.Amount;
+                    CreditSumConfirm[data.CardName] += data.Amount;
             }
         }
         // 管理月中の項目別合計値を返す
@@ -843,7 +836,7 @@ namespace HABookApp
                 else
                     conditions[0] = true;
                 if (c_acc != "")
-                    conditions[1] = (data.CapItem == c_acc);
+                    conditions[1] = (CreditInformation[data.CardName][0] == c_acc);
                 else
                     conditions[1] = true;
                 if (c_item != "")
@@ -952,11 +945,12 @@ namespace HABookApp
             DMLog.WriteWithMethod("");
             // 今月支払い分があれば総額をAccountDataに渡す
             List<InAccountData> adddata_list = new List<InAccountData>();
-            foreach (string key in CapItemList)
+            foreach (KeyValuePair<string, List<string>> pair in CreditInformation)
             {
-                if ((key != "現金") && (CreditSumConfirm[key] != 0))
+                string cap_key = pair.Value[0], pay_key = pair.Value[1];
+                if (CreditSumConfirm[pair.Key] != 0)
                 {
-                    adddata_list.Add(new InAccountData("振替", ManageDate + "/" + CreditPayDay[key], key, CreditSumConfirm[key],"","クレジット", false));
+                    adddata_list.Add(new InAccountData("振替", ManageDate + "/" + pay_key, pair.Value[0], CreditSumConfirm[pair.Key],"", "カード支払い:" + cap_key, false));
                 }
             }
             AddAccountData(adddata_list);
@@ -1006,7 +1000,6 @@ namespace HABookApp
         /// <summary>
         /// ④口座利用履歴の管理
         /// </summary>
-
         public List<InAccountData> AccountData { get; private set; } // 口座引き落とし管理データ
         public void SetAccountData(List<InAccountData> data) { AccountData = new List<InAccountData>(data); SaveAccountLog(); return; }
 
@@ -1065,6 +1058,7 @@ namespace HABookApp
                 return;
             }
             AccountSumUpdate(); // 利用総額の更新
+            UpdateLatest();
             return;
         }
         // 指定Noのデータを削除する
@@ -1393,7 +1387,6 @@ namespace HABookApp
         }
 
 
-
         // 管理月以前のデータを読み込む
         public Dictionary<string, MonthData> LoadMonthData()
         {
@@ -1645,9 +1638,7 @@ namespace HABookApp
             FixCreditData();
             // 初期値の更新
             foreach (string cap_key in CapItemList)
-            {
                 InitBalance[cap_key] = GetNowBalance(cap_key);
-            }
             // 現金利用履歴の削除
             DeleteCashData();
             // 口座利用履歴の削除
@@ -1666,10 +1657,29 @@ namespace HABookApp
             return 0;
         }
 
+        // 初回の準備
+        private void FirstPreparing()
+        {
+            // 設定情報のデフォルト設定
+            ExpItemList = new List<string>() { "食費", "遊興費", "被服費", "日用品", "教育費", "交際費", "交通費", "その他", "住宅費", "水道", "ガス", "電気", "インターネット", "回線料", "携帯" };
+            InitBalance = new Dictionary<string, int>() { {"現金", 0} };
+            StartDate = bootDate.ToString("yyyy/MM");
+            ManageDate = bootDate.ToString("yyyy/MM");
+            UpdateLatest(); // ここで設定ファイルに記録される
+
+            // フォルダ作成
+            if (Directory.Exists(PATH_SAVE))
+                Directory.Delete(PATH_SAVE, true);
+            Directory.CreateDirectory(PATH_SAVE);
+
+            // エクセルファイルのテンプレートを作成
+            CreateNewXLSX(DateTime.Parse(ManageDate).Year);
+        }
 
         // 初期化処理
-        public void Init(string root_dir_path)
+        public bool Init(string root_dir_path, bool only_init = false)
         {
+            bool ret_b;
 
             PATH_USERS_ROOT = @root_dir_path;
 
@@ -1682,17 +1692,43 @@ namespace HABookApp
             DMLog.WriteWithMethod("");
 
             // 初期設定ファイルの読み込み
-            ReadInitFile();
+            if (!Filecheck())
+            {
+                DMLog.WriteWithMethod("-> 初期化処理を実施");
+                FirstPreparing();
+                ret_b = false;
+                ReadInitFile();
+            }
+            else
+            {
+                ret_b = true;
+                ReadInitFile();
+            }
 
-            // 選択可能日付リストの取得
-            SetSelectiveDate();
+            if (!only_init)
+            {
+                // 選択可能日付リストの取得
+                SetSelectiveDate();
 
-            // 各種管理データの読み込み
-            ReadCashLog(); // 現金利用履歴
-            ReadCreditLog(); // クレジット利用履歴
-            ReadAccountLog(); // 口座利用履歴
+                // 各種管理データの読み込み
+                ReadCashLog(); // 現金利用履歴
+                ReadCreditLog(); // クレジット利用履歴
+                ReadAccountLog(); // 口座利用履歴
+            }
 
-            return;
+            return ret_b;
+        }
+
+        // ファイルチェック
+        public bool Filecheck()
+        {
+            if (!File.Exists(PATH_USERS_ROOT + INITFILE))
+                return false;
+
+            if (!Directory.Exists(PATH_SAVE))
+                return false;
+
+            return true;
         }
 
         // コンストラクタ

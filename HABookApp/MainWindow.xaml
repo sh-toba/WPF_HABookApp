@@ -279,10 +279,10 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="引落とし口座" Width="100">
+                                        <GridViewColumn Header="種別" Width="100">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBlock Text="{Binding CapItem.Value}" TextAlignment="Center" />
+                                                    <TextBlock Text="{Binding CardName.Value}" TextAlignment="Center" />
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>

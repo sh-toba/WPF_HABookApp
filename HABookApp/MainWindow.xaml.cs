@@ -27,7 +27,7 @@ namespace HABookApp
         /// MainWindow定義値
         /// </summary>
         private const string APPNAME = "Household Account Book";
-        private const string VERSION = "__ver2.2__";
+        private const string VERSION = "__ver3.0β__";
         private const bool MODE_DEVELOP = false;
         private const int INCASH_MAX_INPUT_NUM = 5; // MAX入力数 ※XAMLに合わせる
 
@@ -55,8 +55,8 @@ namespace HABookApp
             // ユーザーリスト読み込み
             if (!LM.LoadUsers())
             {
-                MessageBox.Show("ユーザーリストの読み取りに失敗しましたm(_ _)m\nアプリを終了します。", TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
-                Environment.Exit(0); // 強制終了
+                //MessageBox.Show("ユーザーリストの読み取りに失敗しましたm(_ _)m\nアプリを終了します。", TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
+                //Environment.Exit(0); // 強制終了
             }
 
             // ログイン画面
@@ -99,6 +99,7 @@ namespace HABookApp
             HABAVM.ExpItemList.Value = new List<string>(DM.ExpItemList);
             HABAVM.CapItemList.Value = new List<string>(DM.CapItemList);
             HABAVM.GetAccountList();
+            HABAVM.CardList.Value = new List<string>(DM.GetCardList());
             HABAVM.AccInputItem.Value = new List<string>(DM.AccInputItem);
             InCreditSelectedAcc.SelectedValue = HABAVM.AccountList.Value[0]; //Credotタブの初期選択口座
             InAccountSelectedAcc.SelectedValue = HABAVM.CapItemList.Value[2]; //Accountタブの初期選択口座

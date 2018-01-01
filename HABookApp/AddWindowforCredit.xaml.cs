@@ -35,7 +35,7 @@ namespace HABookApp
         private void AddContentsReset()
         {
             string rlabel = "Add", label;
-            List<string> label_list = new List<string> { "Date", "Amount", "Item", "Detail", "Account" };
+            List<string> label_list = new List<string> { "Date", "Amount", "Item", "Detail", "Card" };
 
             DatePicker dp;
             TextBox tb;
@@ -61,9 +61,9 @@ namespace HABookApp
                             cb = this.FindName(label) as ComboBox;
                             cb.SelectedValue = null;
                             break;
-                        case "Account":
+                        case "Card":
                             cb = this.FindName(label) as ComboBox;
-                            cb.SelectedValue = MWin.HABAVM.AccountList.Value[0];
+                            cb.SelectedValue = MWin.HABAVM.CardList.Value[0];
                             break;
                     }
                 }
@@ -118,7 +118,7 @@ namespace HABookApp
             if (inputno.Count == 0) return;
 
             // 入力内容をInCreditData型にしてリスト化
-            string date, eitem, detail, citem;
+            string date, eitem, detail, cname;
             string addinfo = "", no_str;
             InCreditData adddata;
             List<InCreditData> adddata_list = new List<InCreditData>();
@@ -150,15 +150,15 @@ namespace HABookApp
                     return;
                 }
                 // 口座取得
-                cb = this.FindName(rlabel + "Account" + no.ToString()) as ComboBox;
+                cb = this.FindName(rlabel + "Card" + no.ToString()) as ComboBox;
                 if (cb.SelectedValue == null)
                 {
-                    MessageBox.Show(no_str + "->引落とし口座 : 未選択です。", MWin.TITLE_WARNING_DIALOG, MessageBoxButton.OK);
+                    MessageBox.Show(no_str + "->カード種 : 未選択です。", MWin.TITLE_WARNING_DIALOG, MessageBoxButton.OK);
                     return;
                 }
-                citem = (string)cb.SelectedValue;
+                cname = (string)cb.SelectedValue;
 
-                adddata = new InCreditData(date, eitem, inputno[no], detail, citem);
+                adddata = new InCreditData(date, eitem, inputno[no], detail, cname);
                 addinfo += ("\n" + adddata.StringConv2());
                 adddata_list.Add(adddata);
             }

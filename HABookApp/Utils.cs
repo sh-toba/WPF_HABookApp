@@ -125,6 +125,72 @@ namespace MyUtils
             return ret_dict;
         }
 
+        public static string DictionaryToStrLine(Dictionary<string, List<string>> collection, char[] divchar, bool containkey = true)
+        {
+            if (divchar.Length != 3)
+                return "";
+
+            int N = collection.Count, count = 0;
+            string line_str = "";
+            foreach (KeyValuePair<string, List<string>> pair in collection)
+            {
+                string conectvalue = "";
+                int N2 = pair.Value.Count, count2 = 0;
+                foreach(string s in pair.Value)
+                {
+                    count2++;
+                    if (count2 != N2)
+                        conectvalue += (s + divchar[1]);
+                    else
+                        conectvalue += s;
+                }
+
+                count++;
+                if (containkey)
+                {
+                    if (count != N)
+                        line_str += (pair.Key + divchar[0] + conectvalue + divchar[2]);
+                    else
+                        line_str += (pair.Key + divchar[0] + conectvalue);
+                }
+                else
+                {
+                    if (count != N)
+                        line_str += (conectvalue + divchar[2]);
+                    else
+                        line_str += conectvalue;
+                }
+            }
+            return line_str;
+        }
+        public static Dictionary<string, List<string>> StrLineToDictionaryList(string text, char[] divchar)
+        {
+            Dictionary<string, List<string>> ret_dict = new Dictionary<string, List<string>>();
+
+            if (divchar.Length != 3)
+                return ret_dict;
+
+            string[] words = text.Split(divchar[2]);
+
+            List<string> tmp_list;
+            foreach(string s1 in words)
+            {
+                string[] words2 = s1.Split(divchar[0]);
+
+                if (words2.Length != 2)
+                    return ret_dict;
+
+                tmp_list = new List<string>();
+                string[] words3 = words2[1].Split(divchar[1]);
+                foreach(string s2 in words3)
+                    tmp_list.Add(s2);
+
+                ret_dict.Add(words2[0], new List<string>(tmp_list));
+            }
+
+            return ret_dict;
+        }
+
 
         /// <summary>
         /// デバッグ用コンソール表示

@@ -5,26 +5,110 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HABookApp"
         mc:Ignorable="d"
-        Title="UserSetting" Height="240" Width="500" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen">
-    <StackPanel Background="#7FA6E2F0">
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,5,5">
-            <TextBlock Text="ID :" FontSize="20" FontWeight="Bold" Margin="0,0,10,0" Width="150" TextAlignment="Right"/>
-            <TextBox x:Name = "SetID" FontSize="20" Width="300" />
+        Title="UserSetting" Height="600" Width="500" ResizeMode="NoResize"  WindowStartupLocation="CenterScreen" Background="#7FA6E2F0">
+    <StackPanel VerticalAlignment="Center">
+        <TextBlock Text="ユーザー情報の編集" HorizontalAlignment="Center" FontWeight="Bold" Foreground="DarkOrange" FontSize="20" Margin="5,10,5,5"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0" HorizontalAlignment="Center">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="ID :" FontSize="18" FontWeight="Bold" Margin="0,5,10,5" Width="150" TextAlignment="Right"/>
+                <TextBlock Text="Pass :" FontSize="18" FontWeight="Bold" Margin="0,5,10,5" Width="150" TextAlignment="Right"/>
+                <TextBlock Text="Pass（再入力）:" FontSize="18" FontWeight="Bold" Margin="0,5,10,5" Width="150" TextAlignment="Right"/>
+                <TextBlock Text="データ保存先 :" FontSize="18" FontWeight="Bold" Margin="0,5,10,5" Width="150" TextAlignment="Right"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical">
+                <TextBox x:Name = "SetID" FontSize="18" Width="300" Margin="0,5,0,5"/>
+                <PasswordBox x:Name="SetPASS" Width="300" PasswordChar="*" FontSize="18" Margin="0,5,0,5"/>
+                <PasswordBox x:Name="SetPASS2" Width="300" PasswordChar="*" VerticalContentAlignment="Center" FontSize="18" Margin="0,5,0,5"/>
+                <TextBox x:Name="SetDIR" Width="300" FontSize="18" IsEnabled="False"/>
+            </StackPanel>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,5,5">
-            <TextBlock Text="Pass :" FontSize="20" FontWeight="Bold" Margin="0,0,10,0" Width="150" TextAlignment="Right"/>
-            <PasswordBox x:Name="SetPASS" Width="300" PasswordChar="*" VerticalContentAlignment="Center"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,5,5">
-            <TextBlock Text="Pass（再入力）:" FontSize="20" FontWeight="Bold" Margin="0,0,10,0" Width="150" TextAlignment="Right"/>
-            <PasswordBox x:Name="SetPASS2" Width="300" PasswordChar="*" VerticalContentAlignment="Center"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,5,5">
-            <TextBlock Text="データ保存先:" FontSize="20" FontWeight="Bold" Margin="0,0,10,0" Width="150" TextAlignment="Right"/>
-            <TextBox x:Name="SetDIR" Width="265" />
-            <Button x:Name="FolderSelect" Content="..." FontSize="20" Width="30" Margin="5, 0, 0, 0" HorizontalAlignment="Center" Cursor="Hand" Click="FolderSelect_Click"/>
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,5,20">
+        <TextBlock Text="ユーザー設定の編集" HorizontalAlignment="Center" FontWeight="Bold" Foreground="DarkOrange" FontSize="20" Margin="5,10,5,5"/>
+        <Border BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Background="WhiteSmoke" >
+                <StackPanel Orientation="Horizontal" Background="CornflowerBlue">
+                    <Label Content="費目の登録" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="14"/>
+                    <Label Content="※ ','区切りで入力" VerticalAlignment="Center" Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="12"/>
+                </StackPanel>
+                <TextBox x:Name="ItemSettingBox" FontSize="14" Height="25" Text="{Binding Path=ItemList.Value}" IsEnabled="{Binding Path=IsEditable.Value}"/>
+                <Grid Background="CornflowerBlue">
+                    <Label Content="元手の登録" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="14"/>
+                    <Border CornerRadius="6" VerticalAlignment="Center"  Width="50" Margin="10, 0, 80, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                        <Button x:Name="AccountInfoAddButton" Content="Add" FontSize="14" FontWeight="ExtraBold" Foreground="#FF057FF9" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" />
+                    </Border>
+                    <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 10, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                        <Button x:Name="AccountInfoDeleteButton" Content="Delete" FontSize="14" FontWeight="ExtraBold" Foreground="Red" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" />
+                    </Border>
+                </Grid>
+                <ListView x:Name="AccountInfoListView" ItemsSource="{Binding AccountInfoList.Value}" Width="460" Height="100" ScrollViewer.HorizontalScrollBarVisibility="Auto" >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView >
+                            <GridViewColumn Header="名前" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox TextAlignment="Center" Text="{Binding Path=Name.Value}" IsEnabled="{Binding Path=IsEditable.Value}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="現残金" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox TextAlignment="Center" Text="{Binding Path=NowBalance.Value}" IsEnabled="{Binding Path=IsEditable.Value}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <Grid Background="CornflowerBlue">
+                    <Label Content="クレジットカードの登録" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="14"/>
+                    <Border CornerRadius="6" VerticalAlignment="Center"  Width="50" Margin="10, 0, 80, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                        <Button x:Name="CreditInfoAddButton" Content="Add" FontSize="14" FontWeight="ExtraBold" Foreground="#FF057FF9" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" />
+                    </Border>
+                    <Border CornerRadius="6" VerticalAlignment="Center" Width="60" Margin="10, 0, 10, 0" HorizontalAlignment="Right" Background="#FFE5E5E5" BorderBrush="#FFACACAC">
+                        <Button x:Name="CreditInfoDeleteButton" Content="Delete" FontSize="14" FontWeight="ExtraBold" Foreground="Red" Cursor="Hand" Background="{x:Null}" BorderBrush="{x:Null}" />
+                    </Border>
+                </Grid>
+                <ListView x:Name="CreditInfoListView" ItemsSource="{Binding CreditInfoList.Value}" Width="460" Height="80" ScrollViewer.HorizontalScrollBarVisibility="Auto" >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView >
+                            <GridViewColumn Header="カード名" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox TextAlignment="Center" Text="{Binding Path=CardName.Value}" IsEnabled="{Binding Path=IsEditable.Value}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="引落とし先" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox TextAlignment="Center" Text="{Binding Path=Account.Value}" IsEnabled="{Binding Path=IsEditable.Value}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="支払日" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox TextAlignment="Center" Text="{Binding Path=PayDay.Value}" IsEnabled="{Binding Path=IsEditable.Value}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </StackPanel>
+        </Border>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,5,20">
             <Button x:Name="SetButton" Content=" 登録 " FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Cursor="Hand" Click="SetButton_Click"/>
         </StackPanel>
     </StackPanel>

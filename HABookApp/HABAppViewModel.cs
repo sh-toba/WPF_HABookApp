@@ -29,6 +29,7 @@ namespace HABookApp
         public ReactiveProperty<List<string>> ExpItemList { get; set; } = new ReactiveProperty<List<string>>();
         public ReactiveProperty<List<string>> CapItemList { get; set; } = new ReactiveProperty<List<string>>();
         public ReactiveProperty<List<string>> AccountList { get; set; } = new ReactiveProperty<List<string>>();
+        public ReactiveProperty<List<string>> CardList { get; set; } = new ReactiveProperty<List<string>>();
         public ReactiveProperty<List<string>> SelectiveDate { get; set; } = new ReactiveProperty<List<string>>();
         public ReactiveProperty<List<string>> AccInputItem { get; set; } = new ReactiveProperty<List<string>>();
         public ReactiveProperty<Dictionary<string, Dictionary<string, int>>> CashData { get; set; } = new ReactiveProperty<Dictionary<string, Dictionary<string, int>>>();
@@ -130,9 +131,9 @@ namespace HABookApp
             foreach (InCreditDataView data in CreditData.Value)
             {
                 if (data.IsChecked.Value)
-                    CreditDataDM.Add(new InCreditData(data.Date.Value, data.ExpItem.Value, data.Amount.Value, data.Detail.Value, data.CapItem.Value, mmonth));
+                    CreditDataDM.Add(new InCreditData(data.Date.Value, data.ExpItem.Value, data.Amount.Value, data.Detail.Value, data.CardName.Value, mmonth));
                 else
-                    CreditDataDM.Add(new InCreditData(data.Date.Value, data.ExpItem.Value, data.Amount.Value, data.Detail.Value, data.CapItem.Value));
+                    CreditDataDM.Add(new InCreditData(data.Date.Value, data.ExpItem.Value, data.Amount.Value, data.Detail.Value, data.CardName.Value));
             }
             return CreditDataDM;
         }
@@ -171,7 +172,7 @@ namespace HABookApp
         }
 
         // コンストラクタ
-        public HABAppViewModel(){}
+        public HABAppViewModel() { }
 
         // デバッグ用
         public void ShowCreditData()
@@ -207,12 +208,12 @@ namespace HABookApp
             HashSet<string> ext_date = new HashSet<string>();
             Dictionary<string, bool> item_hist = new Dictionary<string, bool>(); // 入力有無判定用
             foreach (string item_key in ExpItemList.Value) item_hist.Add(item_key, false);
-            foreach(string date_key in SelectiveDate.Value)
+            foreach (string date_key in SelectiveDate.Value)
             {
                 if (cdata.ContainsKey(date_key))
                 {
                     ext_date.Add(date_key);
-                    foreach(string item_key in ExpItemList.Value)
+                    foreach (string item_key in ExpItemList.Value)
                     {
                         if (cdata[date_key].ContainsKey(item_key))
                             item_hist[item_key] = true;
@@ -236,7 +237,7 @@ namespace HABookApp
 
             // データテーブルに書き込み(データ本体)
             int row_count;
-            foreach(string date in ext_date)
+            foreach (string date in ext_date)
             {
                 var row = data_tab.NewRow();
                 row[0] = (DateTime.Parse(date)).ToString("MM/dd");
@@ -258,6 +259,7 @@ namespace HABookApp
         }
     }
 
+
     public class InCreditDataView
     {
         public ReactiveProperty<int> Number { get; set; } = new ReactiveProperty<int>();
@@ -265,7 +267,7 @@ namespace HABookApp
         public ReactiveProperty<string> ExpItem { get; set; } = new ReactiveProperty<string>();
         public ReactiveProperty<int> Amount { get; set; } = new ReactiveProperty<int>();
         public ReactiveProperty<string> Detail { get; set; } = new ReactiveProperty<string>();
-        public ReactiveProperty<string> CapItem { get; set; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> CardName { get; set; } = new ReactiveProperty<string>();
         public ReactiveProperty<bool> IsChecked { get; set; } = new ReactiveProperty<bool>();
 
         public InCreditDataView(int no, InCreditData data, string mmonth)
@@ -275,7 +277,7 @@ namespace HABookApp
             ExpItem.Value = data.ExpItem;
             Amount.Value = data.Amount;
             Detail.Value = data.Detail;
-            CapItem.Value = data.CapItem;
+            CardName.Value = data.CardName;
             if (data.PayDate == mmonth)
                 IsChecked.Value = true;
             else
@@ -290,7 +292,7 @@ namespace HABookApp
             else
                 confirm = "支払い未確定";
 
-            return "管理No." + Number.Value.ToString() + ":" + Amount.Value.ToString() + ":" + Detail.Value + ":" + CapItem.Value + ":" + confirm;
+            return "管理No." + Number.Value.ToString() + ":" + Amount.Value.ToString() + ":" + Detail.Value + ":" + CardName.Value + ":" + confirm;
         }
 
     }
@@ -353,7 +355,7 @@ namespace HABookApp
 
     }
 
-    public class CapitalDataView{
+    public class CapitalDataView {
 
         public ReactiveProperty<string> CapName { get; set; } = new ReactiveProperty<string>();
         public ReactiveProperty<int> InitBalance { get; set; } = new ReactiveProperty<int>();
@@ -374,6 +376,7 @@ namespace HABookApp
     }
 
 
+
     public class BarGraphItem
     {
         public ReactiveProperty<string> Label { get; set; } = new ReactiveProperty<string>();
@@ -384,7 +387,6 @@ namespace HABookApp
             this.Expense.Value = val;
         }
     }
-
 
     // GraphView用のViewModelクラス
     public class GraphViewModel
@@ -438,8 +440,8 @@ namespace HABookApp
         private static List<OxyColor> COLORS { get; } = new List<OxyColor> { OxyColors.Green, OxyColors.Red, OxyColors.Blue, OxyColors.LightCyan, OxyColors.Magenta, OxyColors.Brown, OxyColors.DarkOrange, OxyColors.DarkOrchid, OxyColors.SteelBlue, OxyColors.Tan, OxyColors.LightSalmon, OxyColors.Salmon, OxyColors.Goldenrod, OxyColors.MediumSpringGreen, OxyColors.Maroon, OxyColors.PaleVioletRed };
 
         // 表示項目設定
-        private static List<string> CONTENTS = new List<string> { "収支", "収益", "費目", "所持金", "所持金（総額）"};
-        private static List<string> VIEWLEVEL = new List<string> { "月毎", "年毎" , "全て"};
+        private static List<string> CONTENTS = new List<string> { "収支", "収益", "費目", "所持金", "所持金（総額）" };
+        private static List<string> VIEWLEVEL = new List<string> { "月毎", "年毎", "全て" };
 
         public Dictionary<string, Dictionary<string, MonthData>> LoadedData { get; set; } = new Dictionary<string, Dictionary<string, MonthData>>();
         public HashSet<string> ExpItemList = new HashSet<string>();
@@ -502,7 +504,7 @@ namespace HABookApp
             else
                 YearList.Value = new List<string>();
         }
-        
+
         // 表示用データ計算
         private bool CreateDataList(string ctype, string vtype, string year)
         {
@@ -543,8 +545,8 @@ namespace HABookApp
                         DrawDataList.Add("支出", new DrawData(AccumMode.Value));
                         foreach (KeyValuePair<DateTime, MonthData> pair in refdata)
                         {
-                            DrawDataList["収入"].AddPoint(pair.Key, pair.Value.Income/REGVAL);
-                            DrawDataList["支出"].AddPoint(pair.Key, pair.Value.TotalExpense/REGVAL);
+                            DrawDataList["収入"].AddPoint(pair.Key, pair.Value.Income / REGVAL);
+                            DrawDataList["支出"].AddPoint(pair.Key, pair.Value.TotalExpense / REGVAL);
                         }
                         break;
                     case "収益":
@@ -703,6 +705,124 @@ namespace HABookApp
 
         // コンストラクタ
         public GraphViewModel() { }
+    }
+
+
+    /// <summary>
+    /// ユーザー情報登録画面のビューモデル
+    /// </summary>
+    public class UserSettingViewModel
+    {
+
+        DataManagement DM = new DataManagement();
+        
+        public ReactiveProperty<string> ItemList { get; set; } = new ReactiveProperty<string>(); // 費目の設定 ※','区切りの一行文字列
+        public ReactiveProperty<bool> IsEditable { get; set; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<List<AccountInfoObject>> AccountInfoList { get; set; } = new ReactiveProperty<List<AccountInfoObject>>(); // 
+        public ReactiveProperty<List<CreditInfoObject>> CreditInfoList { get; set; } = new ReactiveProperty<List<CreditInfoObject>>();
+
+        // 初期化
+        public void Init(string path)
+        {
+            // DMを設定ファイルだけ読み出して初期化（ファイルが存在すればtrueで返ってくる）
+            BindingDataManagement(DM.Init(path, true));
+        }
+
+        // コンストラクタ
+        public UserSettingViewModel() {
+        }
+
+        public void BindingDataManagement(bool ro)
+        {
+            ItemList.Value = MyUtils.MyMethods.ListToStrLine(DM.ExpItemList, ',');
+            IsEditable.Value = !ro;
+
+            List<AccountInfoObject> tmp_acclist = new List<AccountInfoObject>();
+            foreach (KeyValuePair<string, int> pair in DM.InitBalance)
+                tmp_acclist.Add(new AccountInfoObject(pair.Key, pair.Value.ToString(), !ro));
+            AccountInfoList.Value = new List<AccountInfoObject>(tmp_acclist);
+
+            List<CreditInfoObject> tmp_credlist = new List<CreditInfoObject>();
+            foreach (KeyValuePair<string, List<string>> pair in DM.CreditInformation)
+                tmp_credlist.Add(new CreditInfoObject(pair.Key, pair.Value[0], pair.Value[1], !ro));
+            CreditInfoList.Value = new List<CreditInfoObject>(tmp_credlist);
+
+        }
+
+        public int DataManagementReflection()
+        {
+            int val;
+
+            List<string> tmp_items = new List<string>();
+            string[] items = ItemList.Value.Split(',');
+            foreach (string s in items)
+                tmp_items.Add(s);
+
+            Dictionary<string, int> tmp_ib = new Dictionary<string, int>();
+            foreach (AccountInfoObject aio in AccountInfoList.Value)
+            {
+                if (!int.TryParse(aio.NowBalance.Value, out val))
+                    return 1;
+
+                tmp_ib.Add(aio.Name.Value, val);
+            }
+
+            Dictionary<string, List<string>> tmp_cinfo = new Dictionary<string, List<string>>();
+            foreach(CreditInfoObject cio in CreditInfoList.Value)
+            {
+                if (!int.TryParse(cio.PayDay.Value, out val)) // 支払予定日が不正。
+                    return 2;
+                if (val < 1 && val > 31)
+                    return 2;
+
+                if (!tmp_ib.ContainsKey(cio.Account.Value)) // 引き落とし口座が登録されていない
+                    return 3;
+
+                tmp_cinfo.Add(cio.CardName.Value, new List<string>() { cio.Account.Value, cio.PayDay.Value});
+            }
+
+            DM.UpdateSetting(tmp_items, tmp_ib, tmp_cinfo);
+
+            return 0;
+        }
+
+    }
+
+    // 元手情報を扱うクラス
+    public class AccountInfoObject
+    {
+
+        public ReactiveProperty<string> Name { get; set; } = new ReactiveProperty<string>(); // 名前
+        public ReactiveProperty<string> NowBalance { get; set; } = new ReactiveProperty<string>(); // 現残金
+        public ReactiveProperty<bool> IsEditable { get; set; } = new ReactiveProperty<bool>(); // ビュー上での編集可否
+
+        // コンストラクタ
+        public AccountInfoObject(string n, string nb, bool ie = true)
+        {
+            Name.Value = n;
+            NowBalance.Value = nb;
+            IsEditable.Value = ie;
+        }
+
+    }
+
+    // クレジットカード情報を扱うクラス
+    public class CreditInfoObject
+    {
+        public ReactiveProperty<string> CardName { get; set; } = new ReactiveProperty<string>(); // カード名
+        public ReactiveProperty<string> Account { get; set; } = new ReactiveProperty<string>(); // 引き落とし口座
+        public ReactiveProperty<string> PayDay { get; set; } = new ReactiveProperty<string>();// 支払予定日
+        public ReactiveProperty<bool> IsEditable { get; set; } = new ReactiveProperty<bool>(); // ビュー上での編集可否
+
+        // コンストラクタ
+        public CreditInfoObject(string cn, string ac, string pd, bool ie = true)
+        {
+            CardName.Value = cn;
+            Account.Value = ac;
+            PayDay.Value = pd;
+            IsEditable.Value = ie;
+        }
+
     }
 
 }
