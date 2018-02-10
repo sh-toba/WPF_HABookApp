@@ -27,7 +27,7 @@ namespace HABookApp
         /// MainWindow定義値
         /// </summary>
         private const string APPNAME = "Household Account Book";
-        private const string VERSION = "__ver3.0β__";
+        private const string VERSION = "__ver4.0β__";
         private const bool MODE_DEVELOP = false;
         private const int INCASH_MAX_INPUT_NUM = 5; // MAX入力数 ※XAMLに合わせる
 
@@ -108,6 +108,8 @@ namespace HABookApp
             HABAVM.MainGraphMenu.Value = new List<string>() { "総計", "現金利用", "クレジット利用", "口座振替"};
             MainSelectGraph.SelectedValue = HABAVM.MainGraphMenu.Value[0];
 
+            LoadBudget(); // 予算データ読み込み
+
             this.textBlock_ManageDate.Text = (DateTime.Parse(DM.ManageDate)).ToString("yyyy年MM月") + " 家計簿";
 
             if (DM.SelectiveDate.Contains(BOOTDATE))
@@ -126,6 +128,12 @@ namespace HABookApp
             return;
         }
 
+        // 予算データの読み込み
+        private void LoadBudget()
+        {
+            HABAVM.ExpensesBudgetList.Value = new List<BinderableNameValue>(HABAVM.BNVConvert(DM.GetExppenseBudget()));
+            HABAVM.IncomesBudgetList.Value = new List<BinderableNameValue>(HABAVM.BNVConvert(DM.GetIncomeBudget()));
+        }
 
         /// <summary>
         /// Mainタブ関連
@@ -663,6 +671,16 @@ namespace HABookApp
         {
             DM.CreateBackup();
             MessageBox.Show("バックアップを作成しました。", TITLE_INFO_DIALOG, MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void BudgetSetting_Click(object sender, RoutedEventArgs e)
+        {
+            // Add用のWindowでDataManagementにデータ追加
+            var BSWindow = new BudgetSetting(this);
+            BSWindow.ShowDialog();
+
+            // DMからロードし直す
+            LoadBudget();
         }
     }
 

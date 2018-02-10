@@ -25,18 +25,20 @@ namespace HABookApp
         private const int MAX_CHACHE = 20;
 
         // Binding用データ
-        public ReactiveProperty<string> NowDate { get; set; } = new ReactiveProperty<string>();
-        public ReactiveProperty<List<string>> ExpItemList { get; set; } = new ReactiveProperty<List<string>>();
-        public ReactiveProperty<List<string>> CapItemList { get; set; } = new ReactiveProperty<List<string>>();
-        public ReactiveProperty<List<string>> AccountList { get; set; } = new ReactiveProperty<List<string>>();
-        public ReactiveProperty<List<string>> CardList { get; set; } = new ReactiveProperty<List<string>>();
-        public ReactiveProperty<List<string>> SelectiveDate { get; set; } = new ReactiveProperty<List<string>>();
-        public ReactiveProperty<List<string>> AccInputItem { get; set; } = new ReactiveProperty<List<string>>();
-        public ReactiveProperty<Dictionary<string, Dictionary<string, int>>> CashData { get; set; } = new ReactiveProperty<Dictionary<string, Dictionary<string, int>>>();
-        public ReactiveProperty<DataTable> CashDataView { get; set; } = new ReactiveProperty<DataTable>();
-        public ReactiveProperty<Dictionary<string, string>> CashDataDetail { get; set; } = new ReactiveProperty<Dictionary<string, string>>();
-        public ReactiveProperty<List<InCreditDataView>> CreditData { get; set; } = new ReactiveProperty<List<InCreditDataView>>();
-        public ReactiveProperty<List<InAccountDataView>> AccountData { get; set; } = new ReactiveProperty<List<InAccountDataView>>();
+        public ReactiveProperty<string> NowDate { get; set; } = new ReactiveProperty<string>(); // アプリ起動日
+        public ReactiveProperty<List<string>> ExpItemList { get; set; } = new ReactiveProperty<List<string>>(); // 費目リスト
+        public ReactiveProperty<List<string>> CapItemList { get; set; } = new ReactiveProperty<List<string>>(); // 元手リスト
+        public ReactiveProperty<List<string>> AccountList { get; set; } = new ReactiveProperty<List<string>>(); // 口座リスト
+        public ReactiveProperty<List<string>> CardList { get; set; } = new ReactiveProperty<List<string>>(); // クレジットカードリスト
+        public ReactiveProperty<List<string>> SelectiveDate { get; set; } = new ReactiveProperty<List<string>>(); // 管理月の日付リスト
+        public ReactiveProperty<List<string>> AccInputItem { get; set; } = new ReactiveProperty<List<string>>(); // 口座取引種リスト
+        public ReactiveProperty<Dictionary<string, Dictionary<string, int>>> CashData { get; set; } = new ReactiveProperty<Dictionary<string, Dictionary<string, int>>>(); // 現金利用履歴
+        public ReactiveProperty<DataTable> CashDataView { get; set; } = new ReactiveProperty<DataTable>(); // 現金利用履歴（表用）
+        public ReactiveProperty<Dictionary<string, string>> CashDataDetail { get; set; } = new ReactiveProperty<Dictionary<string, string>>(); // 現金利用詳細
+        public ReactiveProperty<List<InCreditDataView>> CreditData { get; set; } = new ReactiveProperty<List<InCreditDataView>>(); // クレジット利用
+        public ReactiveProperty<List<InAccountDataView>> AccountData { get; set; } = new ReactiveProperty<List<InAccountDataView>>(); // 口座利用
+
+        // Undo用のキャッシュ
         public ReactiveProperty<bool> CashDataCacheState { get; set; } = new ReactiveProperty<bool>() { Value = false };
         public ReactiveProperty<bool> CreditDataCacheState { get; set; } = new ReactiveProperty<bool>() { Value = false };
         public ReactiveProperty<bool> AccountDataCacheState { get; set; } = new ReactiveProperty<bool>() { Value = false };
@@ -46,6 +48,91 @@ namespace HABookApp
         public ReactiveProperty<int> TotalIncome { get; set; } = new ReactiveProperty<int>();
         public ReactiveProperty<int> Profit { get; set; } = new ReactiveProperty<int>();
 
+        // 予算設定画面
+        public ReactiveProperty<List<BinderableNameValue>> ExpensesBudgetList { get; set; } = new ReactiveProperty<List<BinderableNameValue>>();
+        public ReactiveProperty<List<BinderableNameValue>> IncomesBudgetList { get; set; } = new ReactiveProperty<List<BinderableNameValue>>();
+        public ReactiveProperty<int> TotalExpenseBudget { get; set; } = new ReactiveProperty<int>();
+        public ReactiveProperty<int> TotalIncomeBudget { get; set; } = new ReactiveProperty<int>();
+        public ReactiveProperty<int> ProfitBudget { get; set; } = new ReactiveProperty<int>();
+
+        // 合計値情報のアップデート
+        public void UpdateBudgetSum()
+        {
+            TotalExpenseBudget.Value = GetExpeseBudgetSum();
+            TotalIncomeBudget.Value = GetIncomeBudgetSum();
+            ProfitBudget.Value = TotalIncomeBudget.Value - TotalExpenseBudget.Value;
+        }
+        // 出費の合計値を返す
+        private int GetExpeseBudgetSum()
+        {
+            int val, sum=0;
+            foreach (BinderableNameValue bnv in ExpensesBudgetList.Value)
+            {
+                if (!int.TryParse(bnv.Value.Value, out val)) return -1;
+                sum += val;
+            }
+            return sum;
+        }
+        // 収入の合計値を返す
+        private int GetIncomeBudgetSum()
+        {
+            int val, sum = 0;
+            foreach (BinderableNameValue bnv in IncomesBudgetList.Value)
+            {
+                if (!int.TryParse(bnv.Value.Value, out val)) return -1;
+                sum += val;
+            }
+            return sum;
+        }
+
+        // 入力内容のチェック
+        public bool CheckSetBudget()
+        {
+            bool retb = true;
+            int val;
+            foreach (BinderableNameValue bnv in ExpensesBudgetList.Value)
+                if (!int.TryParse(bnv.Value.Value, out val)) retb = false;
+            foreach (BinderableNameValue bnv in IncomesBudgetList.Value)
+                if (!int.TryParse(bnv.Value.Value, out val)) retb = false;
+
+            return retb;
+        }
+
+
+        // Dictionaryをバインド用のオブジェクトに変換
+        public List<BinderableNameValue> BNVConvert(Dictionary<string, int> dict)
+        {
+            List<BinderableNameValue> retlist = new List<BinderableNameValue>();
+            foreach (KeyValuePair<string, int> pair in dict)
+                retlist.Add(new BinderableNameValue(pair.Key, (pair.Value).ToString()));
+
+            return retlist;
+        }
+        // 逆変換
+        public Dictionary<string, int> ConvertEBLList()
+        {
+            Dictionary<string, int> retdict = new Dictionary<string, int>();
+            foreach (BinderableNameValue bnv in ExpensesBudgetList.Value)
+            {
+                int val;
+                if (!int.TryParse(bnv.Value.Value, out val)) return retdict;
+                retdict.Add(bnv.Name.Value, val);
+            }
+
+            return retdict;
+        }
+        public Dictionary<string, int> ConvertIBLList()
+        {
+            Dictionary<string, int> retdict = new Dictionary<string, int>();
+            foreach (BinderableNameValue bnv in IncomesBudgetList.Value)
+            {
+                int val;
+                if (!int.TryParse(bnv.Value.Value, out val)) return retdict;
+                retdict.Add(bnv.Name.Value, val);
+            }
+
+            return retdict;
+        }
 
         // キャッシュデータ(Cash)
         private List<Dictionary<string, Dictionary<string, int>>> CacheCashData = new List<Dictionary<string, Dictionary<string, int>>>();
@@ -718,7 +805,7 @@ namespace HABookApp
         
         public ReactiveProperty<string> ItemList { get; set; } = new ReactiveProperty<string>(); // 費目の設定 ※','区切りの一行文字列
         public ReactiveProperty<bool> IsEditable { get; set; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<List<AccountInfoObject>> AccountInfoList { get; set; } = new ReactiveProperty<List<AccountInfoObject>>(); // 
+        public ReactiveProperty<List<BinderableNameValue>> AccountInfoList { get; set; } = new ReactiveProperty<List<BinderableNameValue>>(); // 
         public ReactiveProperty<List<CreditInfoObject>> CreditInfoList { get; set; } = new ReactiveProperty<List<CreditInfoObject>>();
 
         // 初期化
@@ -737,10 +824,10 @@ namespace HABookApp
             ItemList.Value = MyUtils.MyMethods.ListToStrLine(DM.ExpItemList, ',');
             IsEditable.Value = !ro;
 
-            List<AccountInfoObject> tmp_acclist = new List<AccountInfoObject>();
+            List<BinderableNameValue> tmp_acclist = new List<BinderableNameValue>();
             foreach (KeyValuePair<string, int> pair in DM.InitBalance)
-                tmp_acclist.Add(new AccountInfoObject(pair.Key, pair.Value.ToString(), !ro));
-            AccountInfoList.Value = new List<AccountInfoObject>(tmp_acclist);
+                tmp_acclist.Add(new BinderableNameValue(pair.Key, pair.Value.ToString(), !ro));
+            AccountInfoList.Value = new List<BinderableNameValue>(tmp_acclist);
 
             List<CreditInfoObject> tmp_credlist = new List<CreditInfoObject>();
             foreach (KeyValuePair<string, List<string>> pair in DM.CreditInformation)
@@ -759,9 +846,9 @@ namespace HABookApp
                 tmp_items.Add(s);
 
             Dictionary<string, int> tmp_ib = new Dictionary<string, int>();
-            foreach (AccountInfoObject aio in AccountInfoList.Value)
+            foreach (BinderableNameValue aio in AccountInfoList.Value)
             {
-                if (!int.TryParse(aio.NowBalance.Value, out val))
+                if (!int.TryParse(aio.Value.Value, out val))
                     return 1;
 
                 tmp_ib.Add(aio.Name.Value, val);
@@ -788,19 +875,19 @@ namespace HABookApp
 
     }
 
-    // 元手情報を扱うクラス
-    public class AccountInfoObject
+    // バインド用のNameとValueのみのクラス
+    public class BinderableNameValue
     {
 
         public ReactiveProperty<string> Name { get; set; } = new ReactiveProperty<string>(); // 名前
-        public ReactiveProperty<string> NowBalance { get; set; } = new ReactiveProperty<string>(); // 現残金
+        public ReactiveProperty<string> Value { get; set; } = new ReactiveProperty<string>(); // 現残金
         public ReactiveProperty<bool> IsEditable { get; set; } = new ReactiveProperty<bool>(); // ビュー上での編集可否
 
         // コンストラクタ
-        public AccountInfoObject(string n, string nb, bool ie = true)
+        public BinderableNameValue(string n, string v, bool ie = true)
         {
             Name.Value = n;
-            NowBalance.Value = nb;
+            Value.Value = v;
             IsEditable.Value = ie;
         }
 

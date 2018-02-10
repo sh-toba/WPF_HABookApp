@@ -131,6 +131,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BudgetSetting.xaml.cs">
+      <DependentUpon>BudgetSetting.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GraphView.xaml.cs">
       <DependentUpon>GraphView.xaml</DependentUpon>
     </Compile>
@@ -144,6 +147,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AddWindowforCredit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BudgetSetting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -257,7 +264,9 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetDir)$(TargetFileName) C:\Users\%25USERNAME%25\OneDrive\Life\HABook\Release
+
 copy $(TargetDir)$(TargetFileName).config C:\Users\%25USERNAME%25\OneDrive\Life\HABook\Release
+
 copy $(TargetDir)template.xlsx C:\Users\%25USERNAME%25\OneDrive\Life\HABook\Release</PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterResolveReferences">

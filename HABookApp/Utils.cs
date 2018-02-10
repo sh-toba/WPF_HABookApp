@@ -191,7 +191,6 @@ namespace MyUtils
             return ret_dict;
         }
 
-
         /// <summary>
         /// デバッグ用コンソール表示
         /// </summary>

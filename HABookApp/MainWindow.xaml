@@ -13,8 +13,9 @@
                 <Viewbox Height="40" HorizontalAlignment="Left" Margin="0,0,10,0">
                     <TextBlock x:Name="textBlock_ManageDate" TextWrapping="Wrap" Text="****年**月 家計簿" Foreground="Black" FontWeight="Bold" TextDecorations="Underline"/>
                 </Viewbox>
-                <Button x:Name="EndofMonthFix" Content="月末Fix" Width="60" VerticalAlignment="Center" Padding="5" IsEnabled="False" Cursor="Hand" Margin="10,0" Click="EndofMonthFix_Click" Background="DarkBlue" Foreground="White" FontWeight="Heavy"/>
-                <Button x:Name="GraphViewButton" Content="Graph" VerticalAlignment="Center" Padding="5" Cursor="Hand" Margin="0,0" Background="DarkBlue" Width="60" Foreground="White" FontWeight="Heavy" Click="GraphViewButton_Click"/>
+                <Button x:Name="EndofMonthFix" Content="月末Fix" Width="60" VerticalAlignment="Center" Padding="5" IsEnabled="False" Cursor="Hand" Margin="10,0,5,0" Click="EndofMonthFix_Click" Background="DarkBlue" Foreground="White" FontWeight="Heavy"/>
+                <Button x:Name="BudgetSetting" Content="予算設定" Width="70" VerticalAlignment="Center" Padding="5" Cursor="Hand" Margin="5,0" Background="DarkBlue" Foreground="White" FontWeight="Heavy" Click="BudgetSetting_Click"/>
+                <Button x:Name="GraphViewButton" Content="Graph" VerticalAlignment="Center" Padding="5" Cursor="Hand" Margin="5,0" Background="DarkBlue" Width="60" Foreground="White" FontWeight="Heavy" Click="GraphViewButton_Click"/>
             </StackPanel>
             <StackPanel HorizontalAlignment="Right" Width="200">
                 <Button x:Name="BackupButton" Content="Backup" HorizontalAlignment="Right" Cursor="Hand" Width="70" Click="BackupButton_Click"/>
@@ -35,7 +36,7 @@
                                 <Grid Background="#FF7BB021">
                                     <Label Content="元手情報" VerticalAlignment="Center"  Margin="2, 0, 0, 0" FontWeight="ExtraBold" Foreground="White" FontSize="20"/>
                                 </Grid>
-                                <ListView x:Name="MainListView" ItemsSource="{Binding CapitalDataList.Value}" Width="600" Height="120" ScrollViewer.HorizontalScrollBarVisibility="Auto" FontSize="18">
+                                <ListView x:Name="MainListView" ItemsSource="{Binding CapitalDataList.Value}" Width="450" Height="120" ScrollViewer.HorizontalScrollBarVisibility="Auto" FontSize="18">
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -61,13 +62,6 @@
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding NowBalance.Value}" TextAlignment="Right" />
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                            <GridViewColumn Header="月末予測[\]" Width="150">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding PredictBalance.Value}" TextAlignment="Right" />
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                             </GridViewColumn>
@@ -467,6 +461,10 @@
                             <TextBlock x:Name="InAccountInputSum" Text="\********" Height="28" Width="140" TextAlignment="Right" FontSize="18" FontWeight="Bold" />
                         </Border>
                     </WrapPanel>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="WishList">
+                <StackPanel Background="#FFF1F3FF">
                 </StackPanel>
             </TabItem>
         </TabControl>

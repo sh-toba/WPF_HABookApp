@@ -420,7 +420,12 @@ namespace HABookApp
         public List<string> AccInputItem { get; private set; } = new List<string> { "振替", "引落", "預入", "入金" }; // 口座管理データ入力項目
         public Dictionary<string, List<string>> CreditInformation = new Dictionary<string, List<string>>(); // クレジット情報{カード名, {引落先, 引落日}}
         public List<string> GetCardList() { return new List<string>(CreditInformation.Keys); }
+        public Dictionary<string, Dictionary<string, int>> Budget { get; private set; } = new Dictionary<string, Dictionary<string, int>>();
+        private static List<string> BUDGETKEYS = new List<string>{ "expenses", "incomes"};
+        public Dictionary<string, int> GetExppenseBudget() { return Budget[BUDGETKEYS[0]]; }
+        public Dictionary<string, int> GetIncomeBudget() { return Budget[BUDGETKEYS[1]]; }
         private static char[] DIVCHAR_CI = new char[] { ':', ',', '|' };
+        
 
         // 操作
         public string StartDate { get; set; } // 運用開始年月
@@ -478,12 +483,21 @@ namespace HABookApp
                                 CreditInformation = MyUtils.MyMethods.StrLineToDictionaryList(line, DIVCHAR_CI);
                                 break;
                             case 7:
+                                Budget.Add(BUDGETKEYS[0], MyUtils.MyMethods.StrLineToDictionaryInt(line, DIVCHAR_CI[1], DIVCHAR_CI[0]));
+                                break;
+                            case 8:
+                                Budget.Add(BUDGETKEYS[1], MyUtils.MyMethods.StrLineToDictionaryInt(line, DIVCHAR_CI[1], DIVCHAR_CI[0]));
+                                break;
+                            case 9:
                                 break;
                             default:
                                 DMLog.Write("-----ERROR----- Initial Setting Data Reading");
                                 return false;
                         }
                     }
+                    // 予算の設定がなければ初期化
+                    if (Budget.Count != 2)
+                        BudgetInitialize();
                 }
                 return true;
             }
@@ -510,6 +524,11 @@ namespace HABookApp
                     wfile.WriteLine(ManageDate);
                     wfile.WriteLine(LatestDate);
                     wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(CreditInformation, DIVCHAR_CI));
+                    if (Budget.Count == 2) // Budgetがある場合
+                    {
+                        wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(Budget[BUDGETKEYS[0]], DIVCHAR_CI[0], DIVCHAR_CI[1]));
+                        wfile.WriteLine(MyUtils.MyMethods.DictionaryToStrLine(Budget[BUDGETKEYS[1]], DIVCHAR_CI[0], DIVCHAR_CI[1]));
+                    }
                 }
                 return true;
             }
@@ -522,6 +541,23 @@ namespace HABookApp
             }
         }
 
+        // 予算の初期化
+        private void BudgetInitialize()
+        {
+            Budget = new Dictionary<string, Dictionary<string, int>>();
+
+            // 読み込まれている費目でBudgetを0に初期化する
+            Dictionary<string, int> tmpdict = new Dictionary<string, int>();
+            foreach (string item in ExpItemList)
+                tmpdict.Add(item, 0);
+            Budget.Add(BUDGETKEYS[0], new Dictionary<string, int>(tmpdict));
+
+            // 収入源は一つで初期化
+            Budget.Add(BUDGETKEYS[1], new Dictionary<string, int> { {"給与1", 0} });
+
+            return;
+        }
+
         // 設定ファイルを外部から更新
         public void UpdateSetting(List<string> explist, Dictionary<string, int> initbal, Dictionary<string, List<string>> cinfo)
         {
@@ -530,6 +566,57 @@ namespace HABookApp
             CreditInformation = new Dictionary<string, List<string>>(cinfo);
             UpdateLatest();
         }
+
+        // 予算の更新
+        public void UpdateBudget(Dictionary<string, int> exp, Dictionary<string, int> inc)
+        {
+            Budget = new Dictionary<string, Dictionary<string, int>>();
+            Budget.Add("expenses", new Dictionary<string, int>(exp));
+            Budget.Add("incomes", new Dictionary<string, int>(inc));
+            UpdateLatest();
+        }
+
+
+        /// <summary>
+        /// 出費傾向の計算 ※"month_range"ヶ月前までの平均を計算するだけ
+        /// </summary>
+        /// <param name="month_range"></param>
+        /// <returns></returns>
+        public Dictionary<string, int> CalcExpenditureTrend(int month_range)
+        {
+            // 返り値の初期化
+            Dictionary<string, int> retdict = new Dictionary<string, int>();
+            foreach(string item in ExpItemList)
+            {
+                retdict.Add(item, 0);
+            }
+
+            // 取得する月のリストを作成
+            List<string> querylist = new List<string>();
+            for(int i = 1; i <= month_range; i++)
+            {
+                DateTime mdate = DateTime.Parse(ManageDate);
+                string qdate = mdate.AddMonths(-i).ToString("yyyy/MM");
+                querylist.Add(qdate);
+
+                if (qdate == StartDate) break; // 記録開始までさかのぼってしまったらbreak;
+            }
+
+            // 過去の履歴をロードする。 ※効率悪いけど、今は過去の全部を読み込んでいる。（グラフを書くときのやつを流用しているので）
+            Dictionary<string, MonthData> mdata = LoadMonthData();
+            foreach(string query in querylist)
+            {
+                foreach (string item in ExpItemList)
+                    retdict[item] += mdata[query].ExpenseSum[item];
+            }
+
+            // 平均
+            foreach (string item in ExpItemList)
+                retdict[item] /= month_range;
+
+            return retdict;
+        }
+
 
 
         /// <summary>
@@ -1352,6 +1439,7 @@ namespace HABookApp
             SaveAccountLog();
             return;
         }
+
 
         // 任意の元手(=key)の現在の残金を計算して返す
         public int GetNowBalance(string key)
