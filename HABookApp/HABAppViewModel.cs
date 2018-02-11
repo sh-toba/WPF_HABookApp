@@ -273,7 +273,7 @@ namespace HABookApp
             return;
         }
 
-        public ReactiveProperty<List<string>> MainGraphMenu { get; set; } = new ReactiveProperty<List<string>>();
+
         public ReactiveProperty<List<BarGraphItem>> BarGraphItems { get; set; } = new ReactiveProperty<List<BarGraphItem>>();
 
         public void ConvertBarGraphItems(Dictionary<string, int> data)
@@ -343,6 +343,110 @@ namespace HABookApp
             CashDataView.Value = data_tab;
 
             return;
+        }
+
+        /// <summary>
+        /// Mainタブのグラフ描画
+        /// </summary>
+        //private static double REGVAL = 1000;
+        private static int STROKE_THICKNESS = 1, FONT_SIZE = 14;
+        private static List<OxyColor> COLORS { get; } = new List<OxyColor> { OxyColors.Green, OxyColors.Red, OxyColors.Blue, OxyColors.LightCyan, OxyColors.Magenta, OxyColors.Brown, OxyColors.DarkOrange, OxyColors.DarkOrchid, OxyColors.SteelBlue, OxyColors.Tan, OxyColors.LightSalmon, OxyColors.Salmon, OxyColors.Goldenrod, OxyColors.MediumSpringGreen, OxyColors.Maroon, OxyColors.PaleVioletRed };
+        public List<string> MainTabGraphMenu { get; } = new List<string> {"総計", "現金利用", "クレジット利用", "口座振替" }; 
+        public ReactiveProperty<PlotModel> MyPlotModel { get; set; } = new ReactiveProperty<PlotModel>();
+
+        // 棒グラフ用アイテム
+        private class MainTabBarGraphItem
+        {
+            public string Label;
+            public int Expense;
+            public int Budget;
+
+            public MainTabBarGraphItem(string s, int exp, int bud)
+            {
+                Label = s;
+                Expense = exp;
+                Budget = bud;
+            }
+        }
+        private List<string> BGLabels = new List<string>();
+        private List<MainTabBarGraphItem> BGItems = new List<MainTabBarGraphItem>();
+
+        public int DrawGraph(string opt, Dictionary<string, Dictionary<string, int>> data)
+        {
+
+            try
+            {
+                // 全体のモデル定義
+                var model = new PlotModel()
+                {
+                    LegendPlacement = LegendPlacement.Outside,
+                    LegendPosition = LegendPosition.RightMiddle,
+                    LegendOrientation = LegendOrientation.Vertical,
+                    LegendBorderThickness = 0,
+                    LegendFontSize = FONT_SIZE + 2
+                };
+
+                // データをチェックして、LedgendとLabelのリストを取得する。
+                List<string> grouplist = new List<string>();
+                List<string> labellist = new List<string>();
+                Dictionary<string, bool> showdata = new Dictionary<string, bool>();
+                foreach (string item in ExpItemList.Value)
+                    showdata.Add(item, false);
+                foreach (KeyValuePair<string, Dictionary<string, int>> pair in data)
+                {
+                    grouplist.Add(pair.Key);
+                    foreach (KeyValuePair<string, int> pair2 in pair.Value)
+                        if (pair2.Value != 0) showdata[pair2.Key] = true;
+                }
+                foreach (string item in ExpItemList.Value)
+                    if (showdata[item]) labellist.Add(item);
+
+                // X軸の設定
+                var categoryAxis = new CategoryAxis
+                {
+                    Position = AxisPosition.Bottom,
+                    FontSize = FONT_SIZE
+                };
+                foreach (string item in labellist)
+                    categoryAxis.Labels.Add(item);
+                model.Axes.Add(categoryAxis);
+
+                // Y軸の設定
+                var valueAxis = new LinearAxis
+                {
+                    Position = AxisPosition.Left,
+                    FontSize = FONT_SIZE,
+                    Title = "金額",
+                    Unit = "円",
+                    TickStyle = TickStyle.Inside,
+                    StringFormat = "0",
+                    MajorGridlineStyle = LineStyle.Solid,
+                    MinorGridlineStyle = LineStyle.Dot,
+                    Minimum = 0,
+                    Maximum = 80000
+                };
+                model.Axes.Add(valueAxis);
+
+                // データの追加
+                foreach (KeyValuePair<string, Dictionary<string, int>> pair in data)
+                {
+                    var bs = new ColumnSeries { Title = pair.Key, StrokeColor = OxyColors.Black, StrokeThickness = STROKE_THICKNESS, BaseValue = 1};
+                    foreach (string item in labellist)
+                    {
+                        int val = (pair.Value.ContainsKey(item)) ? pair.Value[item] : 0;
+                        bs.Items.Add(new ColumnItem { Value = val });
+                    }
+                    model.Series.Add(bs);
+                }
+
+                MyPlotModel.Value = model;
+
+                return 0;
+            }
+            catch
+            {
+                return 2;
+            }
         }
     }
 
@@ -522,8 +626,8 @@ namespace HABookApp
 
         // グラフ描画設定値
         private static double REGVAL = 1000;
-        private static int STROKE_THICKNESS = 2, MARKER_SIZE = 3, FONT_SIZE = 14;
-        private static string MARKER_TYPE = "Circle";
+        private static int STROKE_THICKNESS = 2, FONT_SIZE = 14;
+        //private static string MARKER_TYPE = "Circle";
         private static List<OxyColor> COLORS { get; } = new List<OxyColor> { OxyColors.Green, OxyColors.Red, OxyColors.Blue, OxyColors.LightCyan, OxyColors.Magenta, OxyColors.Brown, OxyColors.DarkOrange, OxyColors.DarkOrchid, OxyColors.SteelBlue, OxyColors.Tan, OxyColors.LightSalmon, OxyColors.Salmon, OxyColors.Goldenrod, OxyColors.MediumSpringGreen, OxyColors.Maroon, OxyColors.PaleVioletRed };
 
         // 表示項目設定

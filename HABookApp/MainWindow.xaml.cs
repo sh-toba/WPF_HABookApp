@@ -27,7 +27,7 @@ namespace HABookApp
         /// MainWindow定義値
         /// </summary>
         private const string APPNAME = "Household Account Book";
-        private const string VERSION = "__ver4.0β__";
+        private const string VERSION = "__ver4.1__";
         private const bool MODE_DEVELOP = false;
         private const int INCASH_MAX_INPUT_NUM = 5; // MAX入力数 ※XAMLに合わせる
 
@@ -105,8 +105,8 @@ namespace HABookApp
             InAccountSelectedAcc.SelectedValue = HABAVM.CapItemList.Value[2]; //Accountタブの初期選択口座
             HABAVM.SelectiveDate.Value = new List<string>(DM.SelectiveDate);
             HABAVM.NowDate.Value = NOWDATE;
-            HABAVM.MainGraphMenu.Value = new List<string>() { "総計", "現金利用", "クレジット利用", "口座振替"};
-            MainSelectGraph.SelectedValue = HABAVM.MainGraphMenu.Value[0];
+            MainSelectGraph.ItemsSource = HABAVM.MainTabGraphMenu;
+            MainSelectGraph.SelectedValue = HABAVM.MainTabGraphMenu[0];
 
             LoadBudget(); // 予算データ読み込み
 
@@ -182,24 +182,34 @@ namespace HABookApp
         private void MainDrawGraph()
         {
             string option = MainSelectGraph.SelectedValue as string;
+            string option_dm = "";
             // DataManagement用のoptionに変換
             switch (option)
             {
                 case "現金利用":
-                    option = "cash";
+                    option_dm = "cash";
                     break;
                 case "クレジット利用":
-                    option = "credit";
+                    option_dm = "credit";
                     break;
                 case "口座振替":
-                    option = "account";
+                    option_dm = "account";
                     break;
                 case "総計":
-                    option = "total";
+                    option_dm = "total";
                     break;
             }
             // 合計値を取得しバインディング
-            HABAVM.ConvertBarGraphItems(DM.GetItemsSum(option));
+            //HABAVM.ConvertBarGraphItems(DM.GetItemsSum(option));
+            switch (HABAVM.DrawGraph(option, new Dictionary<string, Dictionary<string, int>> { { "現出費", DM.GetItemsSum(option_dm) }, { "予算", DM.GetExppenseBudget() } }))
+            {
+                case 1:
+                    MessageBox.Show("データ計算に失敗しました。", TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
+                    break;
+                case 2:
+                    MessageBox.Show("描画処理に失敗しました。", TITLE_WARNING_DIALOG, MessageBoxButton.OK, MessageBoxImage.Error);
+                    break;
+            }
             return;
         }
 
@@ -681,6 +691,9 @@ namespace HABookApp
 
             // DMからロードし直す
             LoadBudget();
+
+            // グラフを描画し直す
+            MainDrawGraph();
         }
     }
 

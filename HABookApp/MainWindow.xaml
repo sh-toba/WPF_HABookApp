@@ -89,16 +89,10 @@
                         <Viewbox HorizontalAlignment="Left" Height="26" VerticalAlignment="Center" >
                             <TextBlock TextWrapping="Wrap" Text="出費内訳：" Foreground="Black" FontWeight="Bold"/>
                         </Viewbox>
-                        <ComboBox x:Name="MainSelectGraph" Margin="10, 0" Width="120" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" ItemsSource="{Binding MainGraphMenu.Value}" DropDownClosed="MainSelectGraph_DropDownClosed"/>
+                        <ComboBox x:Name="MainSelectGraph" Margin="10, 0" Width="120" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" DropDownClosed="MainSelectGraph_DropDownClosed"/>
                     </StackPanel>
                     <Border BorderBrush="Gray" BorderThickness="2" HorizontalAlignment="Left" Margin="10, 0">
-                        <oxy:Plot Height="200" Width="850">
-                            <oxy:Plot.Axes>
-                                <oxy:CategoryAxis ItemsSource="{Binding BarGraphItems.Value}" LabelField="Label.Value"/>
-                                <oxy:LinearAxis Minimum="0" Maximum="100000" Position="Left"/>
-                            </oxy:Plot.Axes>
-                            <oxy:ColumnSeries ItemsSource="{Binding BarGraphItems.Value}" ValueField="Expense.Value"/>
-                        </oxy:Plot>
+                        <oxy:PlotView x:Name="Plot" Height="200" Width="850" Model="{Binding MyPlotModel.Value}"/>
                     </Border>
                 </StackPanel>
             </TabItem>
@@ -463,10 +457,7 @@
                     </WrapPanel>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="WishList">
-                <StackPanel Background="#FFF1F3FF">
-                </StackPanel>
-            </TabItem>
+            
         </TabControl>
     </StackPanel>
 </Window>
