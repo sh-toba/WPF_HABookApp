@@ -18,6 +18,7 @@ namespace HABookApp
 {
     public class HABAppViewModel
     {
+
         // 動作記録用
         public MyUtils.Logger VMLog; // ログ用クラス
 
