@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HABookApp", "HABookApp\HABookApp.csproj", "{AF8CCCEA-1732-4F69-AD79-0A69F4B84E19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{D95FCC36-7BF5-4E7A-8D6F-0DE17E90F535}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{AF8CCCEA-1732-4F69-AD79-0A69F4B84E19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF8CCCEA-1732-4F69-AD79-0A69F4B84E19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF8CCCEA-1732-4F69-AD79-0A69F4B84E19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D95FCC36-7BF5-4E7A-8D6F-0DE17E90F535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D95FCC36-7BF5-4E7A-8D6F-0DE17E90F535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D95FCC36-7BF5-4E7A-8D6F-0DE17E90F535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D95FCC36-7BF5-4E7A-8D6F-0DE17E90F535}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

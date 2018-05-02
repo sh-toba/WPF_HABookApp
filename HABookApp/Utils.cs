@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 
 namespace MyUtils
@@ -491,6 +492,7 @@ namespace MyUtils
         private const string USERSFILE = "users.txt";
         private const char USERS_DIVCHAR = ',';
         private const string INVALID_CHARS = ""; // 入力禁止文字（未使用）
+        private static int STRETCH_COUNT = 1000;
 
         /// <summary>
         /// usrelistの読み込み
@@ -508,7 +510,7 @@ namespace MyUtils
                     while ((line = rfile.ReadLine()) != null)
                     {
                         string[] words = line.Split(USERS_DIVCHAR);
-                        userslist.Add(words[0], new List<string> { (PassEncryption(words[1], false)), words[2] });
+                        userslist.Add(words[0], new List<string> { words[1], words[2] });
                     }
                 }
                 return true;
@@ -527,7 +529,7 @@ namespace MyUtils
         /// <returns>true = 成功</returns>
         public bool AddUser(string id, string pass, string root_dir)
         {
-            userslist.Add(id, new List<string> { pass, root_dir });
+            userslist.Add(id, new List<string> { PassEncryption(pass, id), root_dir });
             return UpdateUsersInfo();
         }
 
@@ -540,7 +542,7 @@ namespace MyUtils
         public bool ChangeUsersInfo(string old_id, string id, string pass, string root_dir)
         {
             userslist.Remove(old_id);
-            userslist.Add(id, new List<string> { pass, root_dir });
+            userslist.Add(id, new List<string> { PassEncryption(pass, id), root_dir });
             return UpdateUsersInfo();
         }
 
@@ -555,7 +557,8 @@ namespace MyUtils
             if (userslist.ContainsKey(id))
             {
                 string register_pass = userslist[id][0];
-                if (pass == register_pass)
+                string encryption_pass = PassEncryption(pass, id);
+                if (encryption_pass == register_pass)
                 {
                     uinfo = new UserInfo(id, userslist[id][0], userslist[id][1]);
                     if (!Directory.Exists(uinfo.DIR))
@@ -651,7 +654,7 @@ namespace MyUtils
                 using (StreamWriter wfile = new StreamWriter(USERSFILE, false, Encoding.GetEncoding("Shift_JIS")))
                 {
                     foreach (KeyValuePair<string, List<string>> pair in userslist)
-                        wfile.WriteLine(pair.Key + USERS_DIVCHAR + PassEncryption(pair.Value[0], true) + USERS_DIVCHAR + pair.Value[1]);
+                        wfile.WriteLine(pair.Key + USERS_DIVCHAR + pair.Value[0] + USERS_DIVCHAR + pair.Value[1]);
                 }
                 return true;
             }
@@ -662,25 +665,72 @@ namespace MyUtils
         }
 
         /// <summary>
-        /// パスワードの暗号化 ※未実装
+        /// salt + ストレッチングしたパスワードを取得(推奨)
         /// </summary>
-        /// <param name="pass">パスワード</param>
-        /// <param name="opt">true=encode, false=decode</param>
-        /// <returns></returns>
-        private string PassEncryption(string pass, bool opt)
+        public static string PassEncryption(string password, string userId)
         {
-            string ret_pass;
+            string salt = GetSha256(userId);
+            string hash = "";
 
-            if (opt)
+            for (int i = 0; i < STRETCH_COUNT; i++)
             {
-                ret_pass = pass;
-            }
-            else
-            {
-                ret_pass = pass;
+                hash = GetSha256(hash + salt + password);
             }
 
-            return ret_pass;
+            return hash;
+
+        }
+
+        /// <summary>
+        /// 文字列から SHA256 のハッシュ値を取得
+        /// </summary>
+        private static string GetSha256(string target)
+        {
+            SHA256 mySHA256 = SHA256Managed.Create();
+            byte[] byteValue = Encoding.UTF8.GetBytes(target);
+            byte[] hash = mySHA256.ComputeHash(byteValue);
+
+            StringBuilder buf = new StringBuilder();
+
+            for (int i = 0; i < hash.Length; i++)
+            {
+                buf.AppendFormat("{0:x2}", hash[i]);
+            }
+
+            return buf.ToString();
+        }
+
+        /// <summary>
+        /// 暗号化を使ったパス作成のテスト
+        /// </summary>
+        public void TestEncryption()
+        {
+            while (true)
+            {
+                string test_id, test_pass;
+                Console.WriteLine(">> [New User] Please input new user_id");
+                test_id = Console.ReadLine();
+                Console.WriteLine(">> [New User] Please input passward");
+                test_pass = Console.ReadLine();
+
+                string encryption = PassEncryption(test_pass, test_id);
+                Console.WriteLine(encryption);
+                Console.WriteLine(">> [Login] Please input user_id");
+                test_id = Console.ReadLine();
+                Console.WriteLine(">> [Login] Please input passward");
+                test_pass = Console.ReadLine();
+                string encryption2 = PassEncryption(test_pass, test_id);
+                Console.WriteLine(encryption2);
+
+                if(encryption == encryption2)
+                    Console.WriteLine(">> Success to login");
+                else
+                    Console.WriteLine(">> Failed to login");
+
+                Console.WriteLine(">> If you wish continue, please input R");
+                string tmp = Console.ReadLine();
+                if (tmp != "R") break;
+            }
         }
 
     }
@@ -873,6 +923,5 @@ namespace MyUtils
         }
 
     }
-
 
 }

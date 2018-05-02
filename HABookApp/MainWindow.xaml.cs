@@ -27,7 +27,7 @@ namespace HABookApp
         /// MainWindow定義値
         /// </summary>
         private const string APPNAME = "Household Account Book";
-        private const string VERSION = "__ver4.1__";
+        private const string VERSION = "__ver4.2__";
         private const bool MODE_DEVELOP = false;
         private const int INCASH_MAX_INPUT_NUM = 5; // MAX入力数 ※XAMLに合わせる
 
